@@ -1,130 +1,155 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full bg-slate-950 text-slate-100 overflow-hidden">
+<html lang="es" class="h-full bg-slate-950 text-slate-100">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>POWER CRAFT - Space Tactical RTS</title>
+    <title>XNOVA FLOW - Elite Space Command</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Space Grotesk', sans-serif; touch-action: none; }
+        body { font-family: 'Space Grotesk', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
-        canvas { touch-action: none; }
-        .glow-cyan { box-shadow: 0 0 20px rgba(6, 182, 212, 0.4); }
-        .glow-amber { box-shadow: 0 0 20px rgba(245, 158, 11, 0.4); }
+        .tab-btn.active {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(59, 130, 246, 0.2));
+            border-color: #06b6d4;
+            color: #22d3ee;
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.25);
+        }
+        .glow-cyan { box-shadow: 0 0 20px rgba(6, 182, 212, 0.15); }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between select-none bg-slate-950 text-slate-100 max-w-md mx-auto relative border-x border-slate-900 shadow-2xl">
+<body class="min-h-screen flex flex-col justify-between select-none p-3 max-w-md mx-auto bg-slate-950 text-slate-100 border-x border-slate-900 shadow-2xl">
 
-    <!-- HEADER TÁCTICO -->
-    <header class="p-3 border-b border-slate-800/80 flex justify-between items-center w-full bg-slate-950/90 z-20">
-        <div>
-            <h1 class="font-black text-sm text-cyan-400 flex items-center gap-1.5 tracking-wider">
-                <span class="w-2 h-2 rounded-full bg-cyan-500 animate-ping"></span>
-                POWER CRAFT <span class="text-[9px] bg-cyan-950 text-cyan-300 border border-cyan-800/60 px-1 py-0.2 rounded font-mono">RTS v1.0</span>
+    <!-- HEADER DE RECURSOS XNOVA EN TIEMPO REAL -->
+    <header class="bg-slate-900/95 border border-slate-800 p-3 rounded-2xl shadow-2xl space-y-2.5 sticky top-0 z-30 backdrop-blur-md glow-cyan">
+        <div class="flex justify-between items-center border-b border-slate-800/80 pb-2">
+            <h1 class="font-black text-xs text-cyan-400 flex items-center gap-1.5 tracking-wider">
+                <span class="w-2.5 h-2.5 rounded-full bg-cyan-500 animate-ping"></span>
+                XNOVA ELITE <span class="text-[9px] bg-cyan-950 text-cyan-300 border border-cyan-800/60 px-1 py-0.2 rounded font-mono">v2.0</span>
             </h1>
-            <p id="timerDisplay" class="text-[10px] text-amber-400 font-mono">Verificando pase...</p>
+            <div class="flex items-center gap-2">
+                <span id="passTimer" class="text-[10px] text-amber-400 font-mono font-bold">Pase: --h --m</span>
+                <button onclick="exitToMainDapp()" class="bg-slate-950 border border-slate-800 hover:border-slate-600 text-slate-300 text-[10px] px-2.5 py-1 rounded-xl font-bold transition active:scale-95">Salir 🚪</button>
+            </div>
         </div>
-        <button onclick="exitToMainDapp()" class="bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700/60 text-xs px-3 py-1.5 rounded-xl font-bold cursor-pointer transition active:scale-95">
-            Volver 🚪
-        </button>
+
+        <!-- PANEL DE RECURSOS -->
+        <div class="grid grid-cols-4 gap-1.5 text-center font-mono text-[10px]">
+            <div class="bg-slate-950 border border-slate-800/80 p-1.5 rounded-xl">
+                <p class="text-slate-400 font-semibold text-[9px]">METAL</p>
+                <p id="resMetal" class="text-amber-400 font-bold text-xs">0</p>
+            </div>
+            <div class="bg-slate-950 border border-slate-800/80 p-1.5 rounded-xl">
+                <p class="text-slate-400 font-semibold text-[9px]">CRISTAL</p>
+                <p id="resCrystal" class="text-cyan-400 font-bold text-xs">0</p>
+            </div>
+            <div class="bg-slate-950 border border-slate-800/80 p-1.5 rounded-xl">
+                <p class="text-slate-400 font-semibold text-[9px]">DEUTERIO</p>
+                <p id="resDeut" class="text-emerald-400 font-bold text-xs">0</p>
+            </div>
+            <div class="bg-slate-950 border border-slate-800/80 p-1.5 rounded-xl">
+                <p class="text-slate-400 font-semibold text-[9px]">ENERGÍA</p>
+                <p id="resEnergy" class="text-rose-400 font-bold text-xs">0/20</p>
+            </div>
+        </div>
     </header>
 
-    <!-- PANEL DE RECURSOS Y ESTADÍSTICAS -->
-    <div id="gameUI" class="px-3 py-2 bg-slate-900/90 border-b border-slate-800 flex justify-between items-center text-xs font-mono z-10">
-        <div class="flex items-center gap-1 text-amber-400 font-bold">
-            <span>⚡ ENERGÍA:</span> <span id="energyCount">100</span>
-        </div>
-        <div class="flex items-center gap-1 text-emerald-400 font-bold">
-            <span>🛡️ FLOTA:</span> <span id="fleetCount">0</span>
-        </div>
-        <div class="flex items-center gap-1 text-cyan-400 font-bold">
-            <span>⚔️ OLEADA:</span> <span id="waveCount">1</span>
-        </div>
-    </div>
+    <!-- MENU DE PESTAÑAS (ESTILO OGAME TÁCTICO) -->
+    <nav class="grid grid-cols-4 gap-1.5 my-3 font-mono text-[11px]">
+        <button id="tabBtn-buildings" onclick="switchTab('buildings')" class="tab-btn active bg-slate-900 border border-slate-800 py-2.5 rounded-xl text-center font-bold transition active:scale-95">Edificios</button>
+        <button id="tabBtn-tech" onclick="switchTab('tech')" class="tab-btn bg-slate-900 border border-slate-800 py-2.5 rounded-xl text-center font-bold transition active:scale-95">Tecno</button>
+        <button id="tabBtn-shipyard" onclick="switchTab('shipyard')" class="tab-btn bg-slate-900 border border-slate-800 py-2.5 rounded-xl text-center font-bold transition active:scale-95">Astillero</button>
+        <button id="tabBtn-fleet" onclick="switchTab('fleet')" class="tab-btn bg-slate-900 border border-slate-800 py-2.5 rounded-xl text-center font-bold transition active:scale-95">Flota</button>
+    </nav>
 
-    <!-- CANVAS DEL JUEGO ESTILO RTS -->
-    <main class="flex-grow relative flex items-center justify-center overflow-hidden bg-slate-950">
-        
-        <!-- PANTALLA INICIAL -->
-        <div id="startOverlay" class="absolute inset-0 z-30 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center space-y-5">
-            <div class="w-16 h-16 rounded-full bg-cyan-500/10 border-2 border-cyan-500 flex items-center justify-center text-3xl animate-bounce glow-cyan">
-                🛰️
+    <!-- ÁREA PRINCIPAL DEL COMANDO -->
+    <main class="flex-grow space-y-3 mb-4">
+
+        <!-- PESTAÑA: EDIFICIOS -->
+        <section id="tab-buildings" class="space-y-2.5">
+            <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono flex items-center gap-1.5">
+                <span>🏗️</span> Infraestructura Planetaria
+            </h2>
+            <div id="buildingsList" class="space-y-2.5"></div>
+        </section>
+
+        <!-- PESTAÑA: TECNOLOGÍA -->
+        <section id="tab-tech" class="hidden space-y-2.5">
+            <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono flex items-center gap-1.5">
+                <span>🧬</span> Investigación Científica
+            </h2>
+            <div id="techList" class="space-y-2.5"></div>
+        </section>
+
+        <!-- PESTAÑA: ASTILLERO -->
+        <section id="tab-shipyard" class="hidden space-y-2.5">
+            <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono flex items-center gap-1.5">
+                <span>🚀</span> Módulos de Astillero
+            </h2>
+            <div id="shipyardList" class="space-y-2.5"></div>
+        </section>
+
+        <!-- PESTAÑA: FLOTA / MISIONES -->
+        <section id="tab-fleet" class="hidden space-y-2.5">
+            <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono flex items-center gap-1.5">
+                <span>🛰️</span> Centro de Misiones Galácticas
+            </h2>
+            
+            <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3.5 shadow-xl">
+                <div class="flex justify-between items-center border-b border-slate-800/80 pb-2.5">
+                    <span class="text-xs font-bold text-cyan-400">Hangar de Combate:</span>
+                    <span id="fleetHangarStatus" class="text-xs font-mono text-slate-300 font-bold">0 Naves</span>
+                </div>
+
+                <div class="space-y-2.5 text-xs">
+                    <button onclick="launchFleetMission('mine')" class="w-full bg-slate-950 border border-emerald-500/30 hover:border-emerald-500 p-3.5 rounded-xl text-left flex justify-between items-center transition active:scale-98">
+                        <div>
+                            <p class="font-bold text-emerald-400">⛏️ Extracción en Cinturón</p>
+                            <p class="text-[10px] text-slate-400">Duración: 20s | Recompensa: +1200 Metal</p>
+                        </div>
+                        <span class="text-xs font-mono bg-emerald-500/20 text-emerald-300 px-2.5 py-1 rounded-lg font-bold">Desplegar</span>
+                    </button>
+
+                    <button onclick="launchFleetMission('attack')" class="w-full bg-slate-950 border border-rose-500/30 hover:border-rose-500 p-3.5 rounded-xl text-left flex justify-between items-center transition active:scale-98">
+                        <div>
+                            <p class="font-bold text-rose-400">⚔️ Incursión Sectorial</p>
+                            <p class="text-[10px] text-slate-400">Duración: 35s | Recompensa: +2500 Metal y Cristal</p>
+                        </div>
+                        <span class="text-xs font-mono bg-rose-500/20 text-rose-300 px-2.5 py-1 rounded-lg font-bold">Atacar</span>
+                    </button>
+                </div>
+
+                <div id="missionStatusBox" class="bg-slate-950/80 p-3 rounded-xl border border-slate-800 font-mono text-[11px] text-amber-400 text-center">
+                    Radar libre. Sin incursiones activas.
+                </div>
             </div>
-            <div>
-                <h2 class="text-2xl font-black text-white tracking-wide">ESTRATEGIA ESPACIAL</h2>
-                <p class="text-slate-400 text-xs mt-1">Despliega unidades tácticas, defiende el sector estelar y destruye las naves nodrizas enemigas.</p>
-            </div>
+        </section>
 
-            <div class="bg-slate-900 border border-slate-800 p-3 rounded-2xl w-full text-left space-y-1.5 text-[11px] text-slate-300">
-                <p class="text-cyan-400 font-bold">🕹️ Mecánicas Tácticas:</p>
-                <p>• Toca la pantalla para **desplegar Caza Estelar** (Consume 25 Energía).</p>
-                <p>• La energía se recarga automáticamente con el tiempo.</p>
-                <p>• Tus cazas atacan automáticamente a los intrusos enemigos.</p>
-            </div>
-
-            <button onclick="startGame()" class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black py-4 rounded-2xl shadow-xl transition active:scale-95 text-sm uppercase tracking-wider glow-cyan">
-                🚀 INICIAR OPERACIÓN TÁCTICA
-            </button>
-        </div>
-
-        <!-- PANTALLA DE GAME OVER -->
-        <div id="gameOverOverlay" class="hidden absolute inset-0 z-40 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center space-y-4">
-            <div class="w-16 h-16 rounded-full bg-rose-500/10 border-2 border-rose-500 flex items-center justify-center text-3xl">
-                💥
-            </div>
-            <h3 class="text-2xl font-black text-rose-400">SECTOR COLAPSADO</h3>
-            <p class="text-xs text-slate-400">La base nodriza fue destruida por la flota enemiga.</p>
-
-            <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl w-full text-center space-y-2 font-mono">
-                <p class="text-xs text-slate-400">Oleadas Resistidas:</p>
-                <p id="finalWave" class="text-3xl font-black text-cyan-400">1</p>
-            </div>
-
-            <button onclick="startGame()" class="w-full bg-cyan-500 text-slate-950 font-bold py-3.5 rounded-2xl text-xs uppercase tracking-wider transition active:scale-95 glow-cyan">
-                🔄 Reintentar Operación
-            </button>
-        </div>
-
-        <!-- CANVAS -->
-        <canvas id="gameCanvas" class="w-full h-full block"></canvas>
     </main>
 
     <!-- FOOTER -->
-    <footer class="p-2 text-center text-[10px] text-slate-600 border-t border-slate-900 font-mono z-20">
-        &copy; 2026 MULTISWAP POWER FLOW • POWER CRAFT RTS
+    <footer class="text-center text-[10px] text-slate-600 border-t border-slate-900/80 pt-2.5 font-mono">
+        &copy; 2026 MULTISWAP POWER FLOW • ELITE ENGINE
     </footer>
 
-    <!-- SCRIPT DE LÓGICA RTS -->
+    <!-- LÓGICA ENGINE XNOVA ELITE -->
     <script>
         const DAPP_PRINCIPAL_URL = "https://multiswap-power-flow.pages.dev";
-        const canvas = document.getElementById("gameCanvas");
-        const ctx = canvas.getContext("2d");
 
-        let isRunning = false;
-        let energy = 100;
-        let wave = 1;
-        let baseHealth = 100;
-        
-        let playerUnits = [];
-        let enemyUnits = [];
-        let bullets = [];
-        let particles = [];
+        let state = {
+            lastSave: Date.now(),
+            resources: { metal: 600, crystal: 400, deut: 200 },
+            buildings: { metalMine: 1, crystalMine: 1, deutSynth: 1, solarPlant: 1 },
+            tech: { laserTech: 0, impulseDrive: 0 },
+            ships: { lightFighter: 1, cargoShip: 1 },
+            activeMission: null
+        };
 
         function exitToMainDapp() {
             window.location.href = DAPP_PRINCIPAL_URL;
         }
 
-        function resizeCanvas() {
-            canvas.width = canvas.parentElement.clientWidth;
-            canvas.height = canvas.parentElement.clientHeight;
-        }
-
-        window.addEventListener("resize", resizeCanvas);
-
         document.addEventListener("DOMContentLoaded", () => {
-            resizeCanvas();
-
             const urlParams = new URLSearchParams(window.location.search);
             const walletParam = urlParams.get("wallet");
             const expiryParam = urlParams.get("expiry");
@@ -136,7 +161,7 @@
             }
 
             const storedExpiry = localStorage.getItem("game_expiry");
-            const timerEl = document.getElementById("timerDisplay");
+            const timerEl = document.getElementById("passTimer");
 
             if (storedExpiry) {
                 const diff = parseInt(storedExpiry) - Date.now();
@@ -151,196 +176,227 @@
                     return;
                 }
             } else {
-                if (timerEl) timerEl.innerText = `Modo Prueba Libre`;
+                if (timerEl) timerEl.innerText = `Prueba Libre`;
             }
 
-            // Tocar la pantalla despliega una unidad si hay energía
-            canvas.addEventListener("touchstart", (e) => {
-                if (!isRunning) return;
-                const touch = e.touches[0];
-                const rect = canvas.getBoundingClientRect();
-                const x = touch.clientX - rect.left;
-                const y = touch.clientY - rect.top;
+            loadGameState();
+            calculateOfflineProduction();
+            renderAll();
 
-                // Solo desplegar en la mitad inferior de la pantalla (zona de comandos del jugador)
-                if (y > canvas.height * 0.5 && energy >= 25) {
-                    energy -= 25;
-                    playerUnits.push({
-                        x: x,
-                        y: y,
-                        targetY: y - 150,
-                        speed: 2.5,
-                        radius: 8,
-                        health: 30,
-                        lastShot: 0
-                    });
-                    updateUI();
-                }
-            });
+            // Loop de recursos por segundo
+            setInterval(tickGame, 1000);
         });
 
-        function startGame() {
-            document.getElementById("startOverlay").classList.add("hidden");
-            document.getElementById("gameOverOverlay").classList.add("hidden");
+        function calculateOfflineProduction() {
+            const now = Date.now();
+            const elapsedSeconds = Math.floor((now - state.lastSave) / 1000);
+            if (elapsedSeconds > 5) {
+                const metalGain = (2 + (state.buildings.metalMine * 3)) * elapsedSeconds;
+                const crystalGain = (1 + (state.buildings.crystalMine * 2)) * elapsedSeconds;
+                const deutGain = (state.buildings.deutSynth * 1.5) * elapsedSeconds;
 
-            energy = 100;
-            wave = 1;
-            baseHealth = 100;
-            playerUnits = [];
-            enemyUnits = [];
-            bullets = [];
-            particles = [];
-
-            isRunning = true;
-            updateUI();
-
-            // Recarga de energía automática
-            setInterval(() => {
-                if (isRunning && energy < 100) {
-                    energy = Math.min(100, energy + 5);
-                    updateUI();
-                }
-            }, 1000);
-
-            // Generador de oleadas enemigas
-            setInterval(() => {
-                if (isRunning) {
-                    spawnEnemyWave();
-                    wave++;
-                    updateUI();
-                }
-            }, 8000);
-
-            requestAnimationFrame(gameLoop);
+                state.resources.metal += metalGain;
+                state.resources.crystal += crystalGain;
+                state.resources.deut += deutGain;
+            }
+            state.lastSave = now;
         }
 
-        function spawnEnemyWave() {
-            const count = Math.min(6, 2 + wave);
-            for (let i = 0; i < count; i++) {
-                enemyUnits.push({
-                    x: Math.random() * (canvas.width - 40) + 20,
-                    y: -30 - (i * 25),
-                    speed: 1.2 + (wave * 0.1),
-                    radius: 10,
-                    health: 20 + (wave * 5),
-                    lastShot: 0
+        function tickGame() {
+            state.resources.metal += 2 + (state.buildings.metalMine * 3);
+            state.resources.crystal += 1 + (state.buildings.crystalMine * 2);
+            state.resources.deut += state.buildings.deutSynth * 1.5;
+
+            state.lastSave = Date.now();
+            saveGameState();
+            updateResourceBar();
+        }
+
+        function updateResourceBar() {
+            document.getElementById("resMetal").innerText = Math.floor(state.resources.metal);
+            document.getElementById("resCrystal").innerText = Math.floor(state.resources.crystal);
+            document.getElementById("resDeut").innerText = Math.floor(state.resources.deut);
+            
+            const energyMax = state.buildings.solarPlant * 25;
+            const energyUsed = (state.buildings.metalMine * 6) + (state.buildings.crystalMine * 6);
+            document.getElementById("resEnergy").innerText = `${energyUsed}/${energyMax}`;
+        }
+
+        function renderAll() {
+            updateResourceBar();
+            renderBuildings();
+            renderTech();
+            renderShipyard();
+            renderFleetHangar();
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll("main > section").forEach(sec => sec.classList.add("hidden"));
+            document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+
+            document.getElementById(`tab-${tabName}`).classList.remove("hidden");
+            document.getElementById(`tabBtn-${tabName}`).classList.add("active");
+        }
+
+        function renderBuildings() {
+            const list = document.getElementById("buildingsList");
+            list.innerHTML = "";
+
+            const defs = [
+                { id: "metalMine", name: "Mina de Metal", lvl: state.buildings.metalMine, m: 70 * state.buildings.metalMine, c: 20 * state.buildings.metalMine },
+                { id: "crystalMine", name: "Mina de Cristal", lvl: state.buildings.crystalMine, m: 60 * state.buildings.crystalMine, c: 30 * state.buildings.crystalMine },
+                { id: "deutSynth", name: "Sintetizador Deuterio", lvl: state.buildings.deutSynth, m: 100 * state.buildings.deutSynth, c: 50 * state.buildings.deutSynth },
+                { id: "solarPlant", name: "Planta Solar", lvl: state.buildings.solarPlant, m: 90 * state.buildings.solarPlant, c: 40 * state.buildings.solarPlant }
+            ];
+
+            defs.forEach(b => {
+                list.innerHTML += `
+                    <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-2xl flex justify-between items-center shadow-lg">
+                        <div>
+                            <p class="font-bold text-xs text-white">${b.name} <span class="text-cyan-400 font-mono">Nvl ${b.lvl}</span></p>
+                            <p class="text-[10px] text-slate-400 font-mono mt-0.5">Costo: ${b.m} Metal | ${b.c} Cristal</p>
+                        </div>
+                        <button onclick="upgradeBuilding('${b.id}', ${b.m}, ${b.c})" class="bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/50 text-cyan-300 px-3.5 py-2 rounded-xl font-mono text-xs font-bold active:scale-95 transition">Mejorar</button>
+                    </div>
+                `;
+            });
+        }
+
+        function upgradeBuilding(id, m, c) {
+            if (state.resources.metal >= m && state.resources.crystal >= c) {
+                state.resources.metal -= m;
+                state.resources.crystal -= c;
+                state.buildings[id]++;
+                saveGameState();
+                renderAll();
+            } else {
+                alert("❌ Recursos insuficientes para ampliar la infraestructura.");
+            }
+        }
+
+        function renderTech() {
+            const list = document.getElementById("techList");
+            list.innerHTML = "";
+            const defs = [
+                { id: "laserTech", name: "Tecnología Láser", lvl: state.tech.laserTech, m: 300, c: 150 },
+                { id: "impulseDrive", name: "Propulsión de Impulso", lvl: state.tech.impulseDrive, c: 500, d: 200 }
+            ];
+
+            defs.forEach(t => {
+                list.innerHTML += `
+                    <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-2xl flex justify-between items-center shadow-lg">
+                        <div>
+                            <p class="font-bold text-xs text-white">${t.name} <span class="text-amber-400 font-mono">Nvl ${t.lvl}</span></p>
+                            <p class="text-[10px] text-slate-400 font-mono mt-0.5">Inversión requerida</p>
+                        </div>
+                        <button onclick="upgradeTech('${t.id}', ${t.m || 0}, ${t.c || 0})" class="bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-amber-300 px-3.5 py-2 rounded-xl font-mono text-xs font-bold active:scale-95 transition">Investigar</button>
+                    </div>
+                `;
+            });
+        }
+
+        function upgradeTech(id, m, c) {
+            if (state.resources.metal >= m && state.resources.crystal >= c) {
+                state.resources.metal -= m;
+                state.resources.crystal -= c;
+                state.tech[id]++;
+                saveGameState();
+                renderAll();
+            } else {
+                alert("❌ Recursos insuficientes para investigar.");
+            }
+        }
+
+        function renderShipyard() {
+            const list = document.getElementById("shipyardList");
+            list.innerHTML = "";
+            const defs = [
+                { id: "lightFighter", name: "Cazador Ligero", count: state.ships.lightFighter, m: 400, c: 150 },
+                { id: "cargoShip", name: "Carguero Estelar", count: state.ships.cargoShip, m: 800, c: 600 }
+            ];
+
+            defs.forEach(s => {
+                list.innerHTML += `
+                    <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-2xl flex justify-between items-center shadow-lg">
+                        <div>
+                            <p class="font-bold text-xs text-white">${s.name} <span class="text-emerald-400 font-mono">x${s.count}</span></p>
+                            <p class="text-[10px] text-slate-400 font-mono mt-0.5">Costo: ${s.m} Metal | ${s.c} Cristal</p>
+                        </div>
+                        <button onclick="buildShip('${s.id}', ${s.m}, ${s.c})" class="bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/50 text-emerald-300 px-3.5 py-2 rounded-xl font-mono text-xs font-bold active:scale-95 transition">Construir</button>
+                    </div>
+                `;
+            });
+        }
+
+        function buildShip(id, m, c) {
+            if (state.resources.metal >= m && state.resources.crystal >= c) {
+                state.resources.metal -= m;
+                state.resources.crystal -= c;
+                state.ships[id]++;
+                saveGameState();
+                renderAll();
+            } else {
+                alert("❌ Recursos insuficientes en el astillero.");
+            }
+        }
+
+        function renderFleetHangar() {
+            document.getElementById("fleetHangarStatus").innerText = `${state.ships.lightFighter} Cazadores | ${state.ships.cargoShip} Cargueros`;
+        }
+
+        function launchFleetMission(type) {
+            if (state.activeMission) {
+                alert("⚠️ Operación en curso. Tu flota ya está en misión.");
+                return;
+            }
+
+            if (type === 'mine') {
+                if (state.ships.cargoShip < 1) { alert("❌ Se requiere al menos 1 Carguero Estelar."); return; }
+                runMission("Extracción de Asteroides", 20, () => {
+                    state.resources.metal += 2000;
+                    state.resources.crystal += 1000;
+                    alert("🎉 ¡Misión exitosa! Botín obtenido: +2000 Metal, +1000 Cristal.");
+                });
+            } else if (type === 'attack') {
+                if (state.ships.lightFighter < 2) { alert("❌ Se requieren al menos 2 Cazadores Ligeros."); return; }
+                runMission("Incursión Sectorial", 35, () => {
+                    state.resources.metal += 4500;
+                    state.resources.deut += 800;
+                    alert("⚔️ ¡Victoria aplastante! Botín de incursión: +4500 Metal, +800 Deuterio.");
                 });
             }
         }
 
-        function gameLoop(timestamp) {
-            if (!isRunning) return;
+        function runMission(name, duration, callback) {
+            let left = duration;
+            state.activeMission = true;
+            const box = document.getElementById("missionStatusBox");
+            box.innerText = `🛰️ ${name}: ${left}s restantes...`;
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // 1. Dibujar Base Nodriza (Línea defensiva inferior)
-            ctx.fillStyle = "rgba(6, 182, 212, 0.15)";
-            ctx.fillRect(0, canvas.height - 40, canvas.width, 40);
-            ctx.strokeStyle = "#06b6d4";
-            ctx.lineWidth = 2;
-            ctx.strokeRect(0, canvas.height - 40, canvas.width, 40);
-
-            ctx.fillStyle = "#06b6d4";
-            ctx.font = "10px 'JetBrains Mono'";
-            ctx.fillText(`BASE NODRIZA: ${baseHealth}%`, 15, canvas.height - 16);
-
-            // 2. Actualizar Unidades del Jugador (Cazas)
-            playerUnits.forEach((unit, index) => {
-                if (unit.y > unit.targetY) {
-                    unit.y -= unit.speed;
+            const timer = setInterval(() => {
+                left--;
+                if (left > 0) {
+                    box.innerText = `🛰️ ${name}: ${left}s restantes...`;
+                } else {
+                    clearInterval(timer);
+                    state.activeMission = false;
+                    box.innerText = "Radar libre. Sin incursiones activas.";
+                    callback();
+                    saveGameState();
+                    renderAll();
                 }
-
-                // Dibujar Caza
-                ctx.save();
-                ctx.beginPath();
-                ctx.arc(unit.x, unit.y, unit.radius, 0, Math.PI * 2);
-                ctx.fillStyle = "#38bdf8";
-                ctx.shadowColor = "#38bdf8";
-                ctx.shadowBlur = 10;
-                ctx.fill();
-                ctx.restore();
-
-                // Disparo automático a enemigos cercanos
-                if (timestamp - unit.lastShot > 500) {
-                    let target = enemyUnits[0];
-                    if (target) {
-                        bullets.push({
-                            x: unit.x,
-                            y: unit.y,
-                            vx: 0,
-                            vy: -6,
-                            isPlayer: true
-                        });
-                        unit.lastShot = timestamp;
-                    }
-                }
-            });
-
-            // 3. Actualizar Unidades Enemigas
-            enemyUnits.forEach((en, index) => {
-                en.y += en.speed;
-
-                // Dibujar Enemigo
-                ctx.save();
-                ctx.beginPath();
-                ctx.arc(en.x, en.y, en.radius, 0, Math.PI * 2);
-                ctx.fillStyle = "#f43f5e";
-                ctx.shadowColor = "#f43f5e";
-                ctx.shadowBlur = 10;
-                ctx.fill();
-                ctx.restore();
-
-                // Si el enemigo llega a la base
-                if (en.y >= canvas.height - 40) {
-                    baseHealth -= 10;
-                    enemyUnits.splice(index, 1);
-                    if (baseHealth <= 0) {
-                        endGame();
-                    }
-                }
-            });
-
-            // 4. Actualizar Proyectiles
-            bullets.forEach((b, index) => {
-                b.x += b.vx;
-                b.y += b.vy;
-
-                ctx.beginPath();
-                ctx.arc(b.x, b.y, 3, 0, Math.PI * 2);
-                ctx.fillStyle = b.isPlayer ? "#38bdf8" : "#f43f5e";
-                ctx.fill();
-
-                // Colisión balas del jugador con enemigos
-                if (b.isPlayer) {
-                    enemyUnits.forEach((en, enIndex) => {
-                        if (Math.hypot(b.x - en.x, b.y - en.y) < en.radius + 3) {
-                            en.health -= 15;
-                            bullets.splice(index, 1);
-                            if (en.health <= 0) {
-                                enemyUnits.splice(enIndex, 1);
-                            }
-                        }
-                    });
-                }
-
-                if (b.y < 0 || b.y > canvas.height) {
-                    bullets.splice(index, 1);
-                }
-            });
-
-            requestAnimationFrame(gameLoop);
+            }, 1000);
         }
 
-        function updateUI() {
-            document.getElementById("energyCount").innerText = energy;
-            document.getElementById("fleetCount").innerText = playerUnits.length;
-            document.getElementById("waveCount").innerText = wave;
+        function saveGameState() {
+            localStorage.setItem("xnova_elite_state", JSON.stringify(state));
         }
 
-        function endGame() {
-            isRunning = false;
-            document.getElementById("finalWave").innerText = wave;
-            document.getElementById("gameOverOverlay").classList.remove("hidden");
+        function loadGameState() {
+            const saved = localStorage.getItem("xnova_elite_state");
+            if (saved) {
+                try { state = JSON.parse(saved); } catch(e){}
+            }
         }
     </script>
 </body>
