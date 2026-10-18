@@ -4,11 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>POWER GAME - DeFi Tactical Module</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <style>
+        body { font-family: 'Space Grotesk', sans-serif; }
+    </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between select-none p-4 max-w-md mx-auto">
+<body class="min-h-screen flex flex-col justify-between select-none p-4 max-w-md mx-auto bg-slate-950 text-slate-100">
 
     <!-- HEADER DE LA DAPP DEL JUEGO -->
     <header class="py-3 border-b border-slate-800 flex justify-between items-center w-full">
@@ -16,10 +19,10 @@
             <h1 class="font-bold text-sm text-emerald-400 flex items-center gap-1.5">
                 ⚔️ POWER GAME
             </h1>
-            <p id="timerDisplay" class="text-[10px] text-amber-400 font-mono">Calculando tiempo...</p>
+            <p id="timerDisplay" class="text-[10px] text-amber-400 font-mono">Verificando pase...</p>
         </div>
-        <button onclick="exitToMainDapp()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-xl font-bold transition cursor-pointer">
-            Volver a dApp 🚪
+        <button onclick="exitToMainDapp()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-xl font-bold cursor-pointer transition">
+            Volver 🚪
         </button>
     </header>
 
@@ -29,19 +32,90 @@
             <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
                 Módulo Táctico Activo
             </span>
-            <p class="text-xs text-slate-300">Bienvenido comandante. Interfaz activa bajo tu pase de 24 horas.</p>
+            <p id="welcomeMsg" class="text-xs text-slate-300">Cargando interfaz del juego...</p>
         </div>
 
         <div id="gameGrid" class="bg-slate-900/60 border border-slate-800 p-4 rounded-2xl w-full aspect-square grid grid-cols-3 gap-3">
-            <!-- Grilla táctica del juego -->
+            <!-- Grilla táctica interactiva -->
         </div>
     </main>
 
     <footer class="text-center text-[10px] text-slate-600 border-t border-slate-900 pt-3">
-        &copy; 2026 MULTISWAP POWER FLOW - POWER-GAME Module
+        &copy; 2026 MULTISWAP POWER FLOW - POWER-GAME
     </footer>
 
-    <!-- LÓGICA Y GUARDIÁN DESDE GAME.JS -->
-    <script src="game.js"></script>
+    <!-- LÓGICA DE SEGURIDAD BLINDADA -->
+    <script>
+        const DAPP_PRINCIPAL_URL = "https://multiswap-power-flow.pages.dev";
+
+        function exitToMainDapp() {
+            window.location.href = DAPP_PRINCIPAL_URL;
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const walletParam = urlParams.get("wallet");
+                const expiryParam = urlParams.get("expiry");
+
+                // 1. Guardar credenciales si vienen en la URL
+                if (walletParam && expiryParam) {
+                    localStorage.setItem("game_wallet", walletParam.toLowerCase());
+                    localStorage.setItem("game_expiry", expiryParam);
+                    
+                    // Intentar limpiar los parámetros de la URL sin romper la app si el navegador lo bloquea
+                    try {
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                    } catch (e) {
+                        console.warn("No se pudo limpiar la URL por restricciones de navegador:", e);
+                    }
+                }
+
+                const storedExpiry = localStorage.getItem("game_expiry");
+                const now = Date.now();
+
+                const timerEl = document.getElementById("timerDisplay");
+                const welcomeMsg = document.getElementById("welcomeMsg");
+
+                // 2. Control de expiración del pase
+                if (storedExpiry) {
+                    const diff = parseInt(storedExpiry) - now;
+                    if (diff > 0) {
+                        const hrs = Math.floor(diff / (1000 * 60 * 60));
+                        const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                        if (timerEl) timerEl.innerText = `Tiempo: ${hrs}h ${mins}m`;
+                        if (welcomeMsg) welcomeMsg.innerText = `Acceso verificado. Módulo activo por 24h.`;
+                    } else {
+                        alert("🔒 Tu pase de 24 horas ha expirado.");
+                        localStorage.removeItem("game_expiry");
+                        window.location.href = DAPP_PRINCIPAL_URL;
+                        return;
+                    }
+                } else {
+                    if (timerEl) timerEl.innerText = `Modo Prueba`;
+                    if (welcomeMsg) welcomeMsg.innerText = `Acceso en modo visualización.`;
+                }
+
+                // 3. Renderizar la grilla táctica del juego
+                const gridContainer = document.getElementById("gameGrid");
+                if (gridContainer) {
+                    gridContainer.innerHTML = "";
+                    for (let i = 0; i < 9; i++) {
+                        const cell = document.createElement("div");
+                        cell.className = "bg-slate-950 border border-slate-800 rounded-xl flex items-center justify-center text-xl cursor-pointer hover:border-emerald-500/50 transition select-none aspect-square";
+                        cell.innerHTML = "⚡";
+                        cell.onclick = () => {
+                            cell.innerHTML = cell.innerHTML === "⚡" ? "💥" : "⚡";
+                        };
+                        gridContainer.appendChild(cell);
+                    }
+                }
+
+            } catch (err) {
+                console.error("Error al iniciar el juego:", err);
+                alert("Atención al cargar módulo: " + err.message);
+            }
+        });
+    </script>
 </body>
 </html>
