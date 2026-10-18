@@ -1,155 +1,155 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full bg-slate-950 text-slate-100">
+<html lang="es" class="h-full bg-slate-950 text-slate-100 overflow-hidden">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>XNOVA FLOW - Elite Space Command</title>
+    <title>POWER ARENA - Prize Pool</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Space Grotesk', sans-serif; }
+        body { font-family: 'Space Grotesk', sans-serif; touch-action: none; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
-        .tab-btn.active {
-            background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(59, 130, 246, 0.2));
-            border-color: #06b6d4;
-            color: #22d3ee;
-            box-shadow: 0 0 15px rgba(6, 182, 212, 0.25);
-        }
-        .glow-cyan { box-shadow: 0 0 20px rgba(6, 182, 212, 0.15); }
+        canvas { touch-action: none; }
+        .glow-emerald { box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between select-none p-3 max-w-md mx-auto bg-slate-950 text-slate-100 border-x border-slate-900 shadow-2xl">
+<body class="min-h-screen flex flex-col justify-between select-none bg-slate-950 text-slate-100 max-w-md mx-auto relative border-x border-slate-900 shadow-2xl">
 
-    <!-- HEADER DE RECURSOS XNOVA EN TIEMPO REAL -->
-    <header class="bg-slate-900/95 border border-slate-800 p-3 rounded-2xl shadow-2xl space-y-2.5 sticky top-0 z-30 backdrop-blur-md glow-cyan">
-        <div class="flex justify-between items-center border-b border-slate-800/80 pb-2">
-            <h1 class="font-black text-xs text-cyan-400 flex items-center gap-1.5 tracking-wider">
-                <span class="w-2.5 h-2.5 rounded-full bg-cyan-500 animate-ping"></span>
-                XNOVA ELITE <span class="text-[9px] bg-cyan-950 text-cyan-300 border border-cyan-800/60 px-1 py-0.2 rounded font-mono">v2.0</span>
-            </h1>
-            <div class="flex items-center gap-2">
-                <span id="passTimer" class="text-[10px] text-amber-400 font-mono font-bold">Pase: --h --m</span>
-                <button onclick="exitToMainDapp()" class="bg-slate-950 border border-slate-800 hover:border-slate-600 text-slate-300 text-[10px] px-2.5 py-1 rounded-xl font-bold transition active:scale-95">Salir 🚪</button>
+    <!-- HEADER & BANNER DEL POZO D1 -->
+    <header class="p-3 border-b border-slate-800/80 bg-slate-950/90 z-20 space-y-2">
+        <div class="flex justify-between items-center w-full">
+            <div>
+                <h1 class="font-black text-xs text-emerald-400 flex items-center gap-1.5 tracking-wider">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                    POWER ARENA <span class="text-[9px] bg-emerald-950 text-emerald-300 border border-emerald-800/60 px-1 py-0.2 rounded font-mono">D1 SYNC</span>
+                </h1>
+                <p id="timerDisplay" class="text-[10px] text-amber-400 font-mono">Verificando Pase...</p>
             </div>
+            <button onclick="exitToMainDapp()" class="bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700/60 text-xs px-2.5 py-1 rounded-xl font-bold transition active:scale-95">
+                Volver 🚪
+            </button>
         </div>
 
-        <!-- PANEL DE RECURSOS -->
-        <div class="grid grid-cols-4 gap-1.5 text-center font-mono text-[10px]">
-            <div class="bg-slate-950 border border-slate-800/80 p-1.5 rounded-xl">
-                <p class="text-slate-400 font-semibold text-[9px]">METAL</p>
-                <p id="resMetal" class="text-amber-400 font-bold text-xs">0</p>
+        <!-- BANNER DEL POZO REAL DESDE D1 -->
+        <div class="bg-gradient-to-r from-amber-500/10 via-emerald-500/10 to-cyan-500/10 border border-amber-500/30 p-2.5 rounded-xl flex justify-between items-center text-xs font-mono">
+            <div class="flex items-center gap-2">
+                <span class="text-xl animate-bounce">🏆</span>
+                <div>
+                    <p class="text-[9px] text-slate-400 uppercase tracking-wider">Pozo Acumulado D1</p>
+                    <p id="prizePoolDisplay" class="font-black text-amber-400 text-sm tracking-wide">Cargando...</p>
+                </div>
             </div>
-            <div class="bg-slate-950 border border-slate-800/80 p-1.5 rounded-xl">
-                <p class="text-slate-400 font-semibold text-[9px]">CRISTAL</p>
-                <p id="resCrystal" class="text-cyan-400 font-bold text-xs">0</p>
-            </div>
-            <div class="bg-slate-950 border border-slate-800/80 p-1.5 rounded-xl">
-                <p class="text-slate-400 font-semibold text-[9px]">DEUTERIO</p>
-                <p id="resDeut" class="text-emerald-400 font-bold text-xs">0</p>
-            </div>
-            <div class="bg-slate-950 border border-slate-800/80 p-1.5 rounded-xl">
-                <p class="text-slate-400 font-semibold text-[9px]">ENERGÍA</p>
-                <p id="resEnergy" class="text-rose-400 font-bold text-xs">0/20</p>
+            <div class="text-right">
+                <p class="text-[9px] text-slate-400">REINICIO</p>
+                <p class="font-bold text-cyan-400 text-xs">Domingo UTC</p>
             </div>
         </div>
     </header>
 
-    <!-- MENU DE PESTAÑAS (ESTILO OGAME TÁCTICO) -->
-    <nav class="grid grid-cols-4 gap-1.5 my-3 font-mono text-[11px]">
-        <button id="tabBtn-buildings" onclick="switchTab('buildings')" class="tab-btn active bg-slate-900 border border-slate-800 py-2.5 rounded-xl text-center font-bold transition active:scale-95">Edificios</button>
-        <button id="tabBtn-tech" onclick="switchTab('tech')" class="tab-btn bg-slate-900 border border-slate-800 py-2.5 rounded-xl text-center font-bold transition active:scale-95">Tecno</button>
-        <button id="tabBtn-shipyard" onclick="switchTab('shipyard')" class="tab-btn bg-slate-900 border border-slate-800 py-2.5 rounded-xl text-center font-bold transition active:scale-95">Astillero</button>
-        <button id="tabBtn-fleet" onclick="switchTab('fleet')" class="tab-btn bg-slate-900 border border-slate-800 py-2.5 rounded-xl text-center font-bold transition active:scale-95">Flota</button>
-    </nav>
+    <!-- UI DE PUNTOS -->
+    <div id="gameUI" class="px-3 py-1.5 bg-slate-900/90 border-b border-slate-800 flex justify-between items-center text-xs font-mono z-10">
+        <div class="flex items-center gap-1 text-amber-400 font-bold">
+            <span>⭐ SCORE:</span> <span id="scoreCount">0</span>
+        </div>
+        <div class="flex items-center gap-1 text-emerald-400 font-bold">
+            <span>💎 GEMAS:</span> <span id="gemCount">0</span>
+        </div>
+        <div class="flex items-center gap-1 text-cyan-400 font-bold">
+            <span>⏱️ TIEMPO:</span> <span id="survivalTimer">00:00</span>
+        </div>
+    </div>
 
-    <!-- ÁREA PRINCIPAL DEL COMANDO -->
-    <main class="flex-grow space-y-3 mb-4">
-
-        <!-- PESTAÑA: EDIFICIOS -->
-        <section id="tab-buildings" class="space-y-2.5">
-            <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono flex items-center gap-1.5">
-                <span>🏗️</span> Infraestructura Planetaria
-            </h2>
-            <div id="buildingsList" class="space-y-2.5"></div>
-        </section>
-
-        <!-- PESTAÑA: TECNOLOGÍA -->
-        <section id="tab-tech" class="hidden space-y-2.5">
-            <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono flex items-center gap-1.5">
-                <span>🧬</span> Investigación Científica
-            </h2>
-            <div id="techList" class="space-y-2.5"></div>
-        </section>
-
-        <!-- PESTAÑA: ASTILLERO -->
-        <section id="tab-shipyard" class="hidden space-y-2.5">
-            <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono flex items-center gap-1.5">
-                <span>🚀</span> Módulos de Astillero
-            </h2>
-            <div id="shipyardList" class="space-y-2.5"></div>
-        </section>
-
-        <!-- PESTAÑA: FLOTA / MISIONES -->
-        <section id="tab-fleet" class="hidden space-y-2.5">
-            <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono flex items-center gap-1.5">
-                <span>🛰️</span> Centro de Misiones Galácticas
-            </h2>
+    <!-- CANVAS DEL JUEGO -->
+    <main class="flex-grow relative flex items-center justify-center overflow-hidden bg-slate-950">
+        
+        <!-- PANTALLA INICIAL / LEADERBOARD REAL -->
+        <div id="startOverlay" class="absolute inset-0 z-30 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-between p-5 text-center space-y-4 overflow-y-auto">
             
-            <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3.5 shadow-xl">
-                <div class="flex justify-between items-center border-b border-slate-800/80 pb-2.5">
-                    <span class="text-xs font-bold text-cyan-400">Hangar de Combate:</span>
-                    <span id="fleetHangarStatus" class="text-xs font-mono text-slate-300 font-bold">0 Naves</span>
+            <div class="space-y-1 mt-2">
+                <div class="w-14 h-14 mx-auto rounded-full bg-emerald-500/10 border-2 border-emerald-500 flex items-center justify-center text-2xl animate-bounce glow-emerald">
+                    ⚔️
                 </div>
+                <h2 class="text-xl font-black text-white tracking-wide">COMPETENCIA DE SURVIVORS</h2>
+                <p class="text-slate-400 text-xs">Compite por el mayor puntaje semanal y gana parte del Pozo FLOW.</p>
+            </div>
 
-                <div class="space-y-2.5 text-xs">
-                    <button onclick="launchFleetMission('mine')" class="w-full bg-slate-950 border border-emerald-500/30 hover:border-emerald-500 p-3.5 rounded-xl text-left flex justify-between items-center transition active:scale-98">
-                        <div>
-                            <p class="font-bold text-emerald-400">⛏️ Extracción en Cinturón</p>
-                            <p class="text-[10px] text-slate-400">Duración: 20s | Recompensa: +1200 Metal</p>
-                        </div>
-                        <span class="text-xs font-mono bg-emerald-500/20 text-emerald-300 px-2.5 py-1 rounded-lg font-bold">Desplegar</span>
-                    </button>
-
-                    <button onclick="launchFleetMission('attack')" class="w-full bg-slate-950 border border-rose-500/30 hover:border-rose-500 p-3.5 rounded-xl text-left flex justify-between items-center transition active:scale-98">
-                        <div>
-                            <p class="font-bold text-rose-400">⚔️ Incursión Sectorial</p>
-                            <p class="text-[10px] text-slate-400">Duración: 35s | Recompensa: +2500 Metal y Cristal</p>
-                        </div>
-                        <span class="text-xs font-mono bg-rose-500/20 text-rose-300 px-2.5 py-1 rounded-lg font-bold">Atacar</span>
-                    </button>
+            <!-- TABLA DE POSICIONES DESDE D1 -->
+            <div class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-3 space-y-2 text-left">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-1.5 text-[11px] font-mono text-amber-400 font-bold">
+                    <span>🥇 RANKING D1 SEMANAL</span>
+                    <span>PUNTAJE</span>
                 </div>
-
-                <div id="missionStatusBox" class="bg-slate-950/80 p-3 rounded-xl border border-slate-800 font-mono text-[11px] text-amber-400 text-center">
-                    Radar libre. Sin incursiones activas.
+                <div id="leaderboardList" class="space-y-1 text-xs font-mono text-slate-400">
+                    Cargando ranking en vivo desde D1...
                 </div>
             </div>
-        </section>
 
+            <button onclick="startGame()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black py-3.5 rounded-2xl shadow-xl transition active:scale-95 text-xs uppercase tracking-wider glow-emerald">
+                🚀 JUGAR Y CLASIFICAR
+            </button>
+        </div>
+
+        <!-- OVERLAY MEJORAS NIVEL -->
+        <div id="upgradeOverlay" class="hidden absolute inset-0 z-40 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center space-y-4">
+            <h3 class="text-lg font-black text-amber-400 tracking-wider">⚡ MEJORA TÁCTICA</h3>
+            <p class="text-xs text-slate-300">Selecciona un módulo de ataque:</p>
+            <div id="upgradeOptions" class="w-full space-y-2.5"></div>
+        </div>
+
+        <!-- OVERLAY GAME OVER -->
+        <div id="gameOverOverlay" class="hidden absolute inset-0 z-40 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center space-y-4">
+            <div class="w-14 h-14 rounded-full bg-rose-500/10 border-2 border-rose-500 flex items-center justify-center text-2xl">
+                💀
+            </div>
+            <h3 class="text-xl font-black text-rose-400">FIN DE LA PARTIDA</h3>
+
+            <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl w-full text-center space-y-2 font-mono">
+                <p class="text-xs text-slate-400">Tu Puntaje Logrado:</p>
+                <p id="finalScore" class="text-3xl font-black text-amber-400">0</p>
+                <p id="scoreSyncStatus" class="text-[10px] text-emerald-400 font-mono">Guardando en D1...</p>
+            </div>
+
+            <button onclick="startGame()" class="w-full bg-emerald-500 text-slate-950 font-bold py-3.5 rounded-2xl text-xs uppercase tracking-wider transition active:scale-95 glow-emerald">
+                🔄 Intentar Superar Récord
+            </button>
+        </div>
+
+        <!-- CANVAS -->
+        <canvas id="gameCanvas" class="w-full h-full block"></canvas>
     </main>
 
-    <!-- FOOTER -->
-    <footer class="text-center text-[10px] text-slate-600 border-t border-slate-900/80 pt-2.5 font-mono">
-        &copy; 2026 MULTISWAP POWER FLOW • ELITE ENGINE
+    <footer class="p-2 text-center text-[10px] text-slate-600 border-t border-slate-900 font-mono z-20">
+        &copy; 2026 MULTISWAP POWER FLOW • D1 CONNECTED
     </footer>
 
-    <!-- LÓGICA ENGINE XNOVA ELITE -->
+    <!-- LÓGICA Y CONEXIÓN A D1 -->
     <script>
         const DAPP_PRINCIPAL_URL = "https://multiswap-power-flow.pages.dev";
+        const API_D1_URL = "https://multiswap-power-flow.pages.dev/api/game";
 
-        let state = {
-            lastSave: Date.now(),
-            resources: { metal: 600, crystal: 400, deut: 200 },
-            buildings: { metalMine: 1, crystalMine: 1, deutSynth: 1, solarPlant: 1 },
-            tech: { laserTech: 0, impulseDrive: 0 },
-            ships: { lightFighter: 1, cargoShip: 1 },
-            activeMission: null
-        };
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
 
-        function exitToMainDapp() {
-            window.location.href = DAPP_PRINCIPAL_URL;
+        let isRunning = false;
+        let score = 0, gems = 0, level = 1, xp = 0, xpToNext = 5, secondsSurvived = 0;
+        let survivalInterval = null;
+        let player, bullets, enemies, gemsList;
+        let touchX = null, touchY = null;
+
+        let playerStats = { speed: 4, fireRate: 350, lastShootTime: 0, bulletDamage: 1, bulletSpeed: 7, health: 100, magnetRadius: 90 };
+
+        function exitToMainDapp() { window.location.href = DAPP_PRINCIPAL_URL; }
+
+        function resizeCanvas() {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
         }
 
+        window.addEventListener("resize", resizeCanvas);
+
         document.addEventListener("DOMContentLoaded", () => {
+            resizeCanvas();
+
             const urlParams = new URLSearchParams(window.location.search);
             const walletParam = urlParams.get("wallet");
             const expiryParam = urlParams.get("expiry");
@@ -161,16 +161,16 @@
             }
 
             const storedExpiry = localStorage.getItem("game_expiry");
-            const timerEl = document.getElementById("passTimer");
+            const timerEl = document.getElementById("timerDisplay");
 
             if (storedExpiry) {
                 const diff = parseInt(storedExpiry) - Date.now();
                 if (diff > 0) {
                     const hrs = Math.floor(diff / (1000 * 60 * 60));
                     const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                    if (timerEl) timerEl.innerText = `Pase: ${hrs}h ${mins}m`;
+                    if (timerEl) timerEl.innerText = `Pase Activo: ${hrs}h ${mins}m`;
                 } else {
-                    alert("🔒 Tu pase táctico ha expirado.");
+                    alert("🔒 Tu pase ha expirado. Renueva tu entrada en la dApp.");
                     localStorage.removeItem("game_expiry");
                     window.location.href = DAPP_PRINCIPAL_URL;
                     return;
@@ -179,224 +179,254 @@
                 if (timerEl) timerEl.innerText = `Prueba Libre`;
             }
 
-            loadGameState();
-            calculateOfflineProduction();
-            renderAll();
-
-            // Loop de recursos por segundo
-            setInterval(tickGame, 1000);
+            setupControls();
+            loadD1Data();
         });
 
-        function calculateOfflineProduction() {
-            const now = Date.now();
-            const elapsedSeconds = Math.floor((now - state.lastSave) / 1000);
-            if (elapsedSeconds > 5) {
-                const metalGain = (2 + (state.buildings.metalMine * 3)) * elapsedSeconds;
-                const crystalGain = (1 + (state.buildings.crystalMine * 2)) * elapsedSeconds;
-                const deutGain = (state.buildings.deutSynth * 1.5) * elapsedSeconds;
+        // LEER POZO Y LEADERBOARD DESDE D1
+        async function loadD1Data() {
+            try {
+                const res = await fetch(API_D1_URL);
+                const data = await res.json();
 
-                state.resources.metal += metalGain;
-                state.resources.crystal += crystalGain;
-                state.resources.deut += deutGain;
-            }
-            state.lastSave = now;
-        }
+                if (data.prizePool !== undefined) {
+                    document.getElementById("prizePoolDisplay").innerText = `${data.prizePool.toLocaleString()} FLOW`;
+                }
 
-        function tickGame() {
-            state.resources.metal += 2 + (state.buildings.metalMine * 3);
-            state.resources.crystal += 1 + (state.buildings.crystalMine * 2);
-            state.resources.deut += state.buildings.deutSynth * 1.5;
-
-            state.lastSave = Date.now();
-            saveGameState();
-            updateResourceBar();
-        }
-
-        function updateResourceBar() {
-            document.getElementById("resMetal").innerText = Math.floor(state.resources.metal);
-            document.getElementById("resCrystal").innerText = Math.floor(state.resources.crystal);
-            document.getElementById("resDeut").innerText = Math.floor(state.resources.deut);
-            
-            const energyMax = state.buildings.solarPlant * 25;
-            const energyUsed = (state.buildings.metalMine * 6) + (state.buildings.crystalMine * 6);
-            document.getElementById("resEnergy").innerText = `${energyUsed}/${energyMax}`;
-        }
-
-        function renderAll() {
-            updateResourceBar();
-            renderBuildings();
-            renderTech();
-            renderShipyard();
-            renderFleetHangar();
-        }
-
-        function switchTab(tabName) {
-            document.querySelectorAll("main > section").forEach(sec => sec.classList.add("hidden"));
-            document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
-
-            document.getElementById(`tab-${tabName}`).classList.remove("hidden");
-            document.getElementById(`tabBtn-${tabName}`).classList.add("active");
-        }
-
-        function renderBuildings() {
-            const list = document.getElementById("buildingsList");
-            list.innerHTML = "";
-
-            const defs = [
-                { id: "metalMine", name: "Mina de Metal", lvl: state.buildings.metalMine, m: 70 * state.buildings.metalMine, c: 20 * state.buildings.metalMine },
-                { id: "crystalMine", name: "Mina de Cristal", lvl: state.buildings.crystalMine, m: 60 * state.buildings.crystalMine, c: 30 * state.buildings.crystalMine },
-                { id: "deutSynth", name: "Sintetizador Deuterio", lvl: state.buildings.deutSynth, m: 100 * state.buildings.deutSynth, c: 50 * state.buildings.deutSynth },
-                { id: "solarPlant", name: "Planta Solar", lvl: state.buildings.solarPlant, m: 90 * state.buildings.solarPlant, c: 40 * state.buildings.solarPlant }
-            ];
-
-            defs.forEach(b => {
-                list.innerHTML += `
-                    <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-2xl flex justify-between items-center shadow-lg">
-                        <div>
-                            <p class="font-bold text-xs text-white">${b.name} <span class="text-cyan-400 font-mono">Nvl ${b.lvl}</span></p>
-                            <p class="text-[10px] text-slate-400 font-mono mt-0.5">Costo: ${b.m} Metal | ${b.c} Cristal</p>
-                        </div>
-                        <button onclick="upgradeBuilding('${b.id}', ${b.m}, ${b.c})" class="bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/50 text-cyan-300 px-3.5 py-2 rounded-xl font-mono text-xs font-bold active:scale-95 transition">Mejorar</button>
-                    </div>
-                `;
-            });
-        }
-
-        function upgradeBuilding(id, m, c) {
-            if (state.resources.metal >= m && state.resources.crystal >= c) {
-                state.resources.metal -= m;
-                state.resources.crystal -= c;
-                state.buildings[id]++;
-                saveGameState();
-                renderAll();
-            } else {
-                alert("❌ Recursos insuficientes para ampliar la infraestructura.");
+                const listEl = document.getElementById("leaderboardList");
+                if (data.leaderboard && data.leaderboard.length > 0) {
+                    listEl.innerHTML = "";
+                    data.leaderboard.forEach((item, index) => {
+                        const shortWallet = `${item.wallet.substring(0, 6)}...${item.wallet.substring(item.wallet.length - 4)}`;
+                        listEl.innerHTML += `
+                            <div class="flex justify-between text-slate-300 font-mono text-xs">
+                                <span>${index + 1}. ${shortWallet}</span>
+                                <span class="text-emerald-400 font-bold">${item.high_score.toLocaleString()} pts</span>
+                            </div>
+                        `;
+                    });
+                } else {
+                    listEl.innerHTML = "<p class='text-slate-500 text-center'>Sé el primero en calificar esta semana.</p>";
+                }
+            } catch (err) {
+                console.error("Error conectando con D1:", err);
+                document.getElementById("prizePoolDisplay").innerText = "1,000 FLOW";
             }
         }
 
-        function renderTech() {
-            const list = document.getElementById("techList");
-            list.innerHTML = "";
-            const defs = [
-                { id: "laserTech", name: "Tecnología Láser", lvl: state.tech.laserTech, m: 300, c: 150 },
-                { id: "impulseDrive", name: "Propulsión de Impulso", lvl: state.tech.impulseDrive, c: 500, d: 200 }
-            ];
+        // GUARDAR PUNTAJE AL MORIR
+        async function saveScoreToD1(finalScore) {
+            const wallet = localStorage.getItem("game_wallet");
+            const statusEl = document.getElementById("scoreSyncStatus");
 
-            defs.forEach(t => {
-                list.innerHTML += `
-                    <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-2xl flex justify-between items-center shadow-lg">
-                        <div>
-                            <p class="font-bold text-xs text-white">${t.name} <span class="text-amber-400 font-mono">Nvl ${t.lvl}</span></p>
-                            <p class="text-[10px] text-slate-400 font-mono mt-0.5">Inversión requerida</p>
-                        </div>
-                        <button onclick="upgradeTech('${t.id}', ${t.m || 0}, ${t.c || 0})" class="bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-amber-300 px-3.5 py-2 rounded-xl font-mono text-xs font-bold active:scale-95 transition">Investigar</button>
-                    </div>
-                `;
-            });
-        }
-
-        function upgradeTech(id, m, c) {
-            if (state.resources.metal >= m && state.resources.crystal >= c) {
-                state.resources.metal -= m;
-                state.resources.crystal -= c;
-                state.tech[id]++;
-                saveGameState();
-                renderAll();
-            } else {
-                alert("❌ Recursos insuficientes para investigar.");
-            }
-        }
-
-        function renderShipyard() {
-            const list = document.getElementById("shipyardList");
-            list.innerHTML = "";
-            const defs = [
-                { id: "lightFighter", name: "Cazador Ligero", count: state.ships.lightFighter, m: 400, c: 150 },
-                { id: "cargoShip", name: "Carguero Estelar", count: state.ships.cargoShip, m: 800, c: 600 }
-            ];
-
-            defs.forEach(s => {
-                list.innerHTML += `
-                    <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-2xl flex justify-between items-center shadow-lg">
-                        <div>
-                            <p class="font-bold text-xs text-white">${s.name} <span class="text-emerald-400 font-mono">x${s.count}</span></p>
-                            <p class="text-[10px] text-slate-400 font-mono mt-0.5">Costo: ${s.m} Metal | ${s.c} Cristal</p>
-                        </div>
-                        <button onclick="buildShip('${s.id}', ${s.m}, ${s.c})" class="bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/50 text-emerald-300 px-3.5 py-2 rounded-xl font-mono text-xs font-bold active:scale-95 transition">Construir</button>
-                    </div>
-                `;
-            });
-        }
-
-        function buildShip(id, m, c) {
-            if (state.resources.metal >= m && state.resources.crystal >= c) {
-                state.resources.metal -= m;
-                state.resources.crystal -= c;
-                state.ships[id]++;
-                saveGameState();
-                renderAll();
-            } else {
-                alert("❌ Recursos insuficientes en el astillero.");
-            }
-        }
-
-        function renderFleetHangar() {
-            document.getElementById("fleetHangarStatus").innerText = `${state.ships.lightFighter} Cazadores | ${state.ships.cargoShip} Cargueros`;
-        }
-
-        function launchFleetMission(type) {
-            if (state.activeMission) {
-                alert("⚠️ Operación en curso. Tu flota ya está en misión.");
+            if (!wallet) {
+                statusEl.innerText = "Modo prueba (No registrado)";
                 return;
             }
 
-            if (type === 'mine') {
-                if (state.ships.cargoShip < 1) { alert("❌ Se requiere al menos 1 Carguero Estelar."); return; }
-                runMission("Extracción de Asteroides", 20, () => {
-                    state.resources.metal += 2000;
-                    state.resources.crystal += 1000;
-                    alert("🎉 ¡Misión exitosa! Botín obtenido: +2000 Metal, +1000 Cristal.");
+            try {
+                statusEl.innerText = "Guardando récord en D1...";
+                await fetch(API_D1_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ wallet: wallet, score: finalScore })
                 });
-            } else if (type === 'attack') {
-                if (state.ships.lightFighter < 2) { alert("❌ Se requieren al menos 2 Cazadores Ligeros."); return; }
-                runMission("Incursión Sectorial", 35, () => {
-                    state.resources.metal += 4500;
-                    state.resources.deut += 800;
-                    alert("⚔️ ¡Victoria aplastante! Botín de incursión: +4500 Metal, +800 Deuterio.");
-                });
+                statusEl.innerText = "✅ ¡Récord sincronizado con D1!";
+                loadD1Data();
+            } catch (e) {
+                statusEl.innerText = "⚠️ Error al guardar puntaje.";
             }
         }
 
-        function runMission(name, duration, callback) {
-            let left = duration;
-            state.activeMission = true;
-            const box = document.getElementById("missionStatusBox");
-            box.innerText = `🛰️ ${name}: ${left}s restantes...`;
+        function setupControls() {
+            canvas.addEventListener("touchstart", (e) => {
+                const t = e.touches[0];
+                const rect = canvas.getBoundingClientRect();
+                touchX = t.clientX - rect.left;
+                touchY = t.clientY - rect.top;
+            });
 
-            const timer = setInterval(() => {
-                left--;
-                if (left > 0) {
-                    box.innerText = `🛰️ ${name}: ${left}s restantes...`;
-                } else {
-                    clearInterval(timer);
-                    state.activeMission = false;
-                    box.innerText = "Radar libre. Sin incursiones activas.";
-                    callback();
-                    saveGameState();
-                    renderAll();
+            canvas.addEventListener("touchmove", (e) => {
+                e.preventDefault();
+                const t = e.touches[0];
+                const rect = canvas.getBoundingClientRect();
+                touchX = t.clientX - rect.left;
+                touchY = t.clientY - rect.top;
+            });
+
+            canvas.addEventListener("touchend", () => { touchX = null; touchY = null; });
+        }
+
+        function startGame() {
+            document.getElementById("startOverlay").classList.add("hidden");
+            document.getElementById("gameOverOverlay").classList.add("hidden");
+            document.getElementById("upgradeOverlay").classList.add("hidden");
+
+            score = 0; gems = 0; level = 1; xp = 0; xpToNext = 5; secondsSurvived = 0;
+            playerStats = { speed: 4, fireRate: 350, lastShootTime: 0, bulletDamage: 1, bulletSpeed: 7, health: 100, magnetRadius: 90 };
+
+            player = { x: canvas.width / 2, y: canvas.height / 2, radius: 14 };
+            bullets = []; enemies = []; gemsList = [];
+
+            isRunning = true;
+            updateUI();
+
+            if (survivalInterval) clearInterval(survivalInterval);
+            survivalInterval = setInterval(() => {
+                if (isRunning) {
+                    secondsSurvived++;
+                    score += 10;
+                    const mins = String(Math.floor(secondsSurvived / 60)).padStart(2, '0');
+                    const secs = String(secondsSurvived % 60).padStart(2, '0');
+                    document.getElementById("survivalTimer").innerText = `${mins}:${secs}`;
+                    updateUI();
                 }
             }, 1000);
+
+            requestAnimationFrame(gameLoop);
         }
 
-        function saveGameState() {
-            localStorage.setItem("xnova_elite_state", JSON.stringify(state));
-        }
+        function gameLoop(timestamp) {
+            if (!isRunning) return;
 
-        function loadGameState() {
-            const saved = localStorage.getItem("xnova_elite_state");
-            if (saved) {
-                try { state = JSON.parse(saved); } catch(e){}
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (touchX !== null && touchY !== null) {
+                const dx = touchX - player.x;
+                const dy = touchY - player.y;
+                const dist = Math.hypot(dx, dy);
+                if (dist > 5) {
+                    player.x += (dx / dist) * playerStats.speed;
+                    player.y += (dy / dist) * playerStats.speed;
+                }
             }
+
+            player.x = Math.max(player.radius, Math.min(canvas.width - player.radius, player.x));
+            player.y = Math.max(player.radius, Math.min(canvas.height - player.radius, player.y));
+
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
+            ctx.fillStyle = "#10b981";
+            ctx.shadowColor = "#10b981";
+            ctx.shadowBlur = 15;
+            ctx.fill();
+            ctx.restore();
+
+            if (timestamp - playerStats.lastShootTime > playerStats.fireRate) {
+                shootNearestEnemy();
+                playerStats.lastShootTime = timestamp;
+            }
+
+            if (Math.random() < 0.03 + (secondsSurvived * 0.0005)) spawnEnemy();
+
+            bullets.forEach((b, index) => {
+                b.x += b.vx; b.y += b.vy;
+                ctx.beginPath(); ctx.arc(b.x, b.y, 4, 0, Math.PI * 2);
+                ctx.fillStyle = "#38bdf8"; ctx.fill();
+                if (b.x < 0 || b.x > canvas.width || b.y < 0 || b.y > canvas.height) bullets.splice(index, 1);
+            });
+
+            enemies.forEach((e, index) => {
+                const dx = player.x - e.x, dy = player.y - e.y, dist = Math.hypot(dx, dy);
+                e.x += (dx / dist) * e.speed; e.y += (dy / dist) * e.speed;
+
+                ctx.save(); ctx.beginPath(); ctx.arc(e.x, e.y, e.radius, 0, Math.PI * 2);
+                ctx.fillStyle = e.color; ctx.shadowColor = e.color; ctx.shadowBlur = 8; ctx.fill(); ctx.restore();
+
+                if (dist < player.radius + e.radius) {
+                    playerStats.health -= e.damage;
+                    enemies.splice(index, 1);
+                    if (playerStats.health <= 0) endGame();
+                }
+
+                bullets.forEach((b, bIndex) => {
+                    if (Math.hypot(b.x - e.x, b.y - e.y) < e.radius + 4) {
+                        e.health -= playerStats.bulletDamage;
+                        bullets.splice(bIndex, 1);
+                        if (e.health <= 0) {
+                            enemies.splice(index, 1);
+                            gemsList.push({ x: e.x, y: e.y, value: e.xpValue });
+                            score += e.scoreValue;
+                        }
+                    }
+                });
+            });
+
+            gemsList.forEach((g, index) => {
+                const dx = player.x - g.x, dy = player.y - g.y, dist = Math.hypot(dx, dy);
+                if (dist < playerStats.magnetRadius) { g.x += (dx / dist) * 6; g.y += (dy / dist) * 6; }
+                ctx.beginPath(); ctx.arc(g.x, g.y, 4, 0, Math.PI * 2); ctx.fillStyle = "#fbbf24"; ctx.fill();
+                if (dist < player.radius + 4) {
+                    gems += g.value; score += g.value * 50; xp += g.value;
+                    if (xp >= xpToNext) { xp = 0; level++; xpToNext = Math.round(xpToNext * 1.5); triggerUpgradeMenu(); }
+                    gemsList.splice(index, 1); updateUI();
+                }
+            });
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function shootNearestEnemy() {
+            if (enemies.length === 0) return;
+            let nearest = null, minDist = Infinity;
+            enemies.forEach(e => {
+                const dist = Math.hypot(e.x - player.x, e.y - player.y);
+                if (dist < minDist) { minDist = dist; nearest = e; }
+            });
+            if (nearest) {
+                const angle = Math.atan2(nearest.y - player.y, nearest.x - player.x);
+                bullets.push({ x: player.x, y: player.y, vx: Math.cos(angle) * playerStats.bulletSpeed, vy: Math.sin(angle) * playerStats.bulletSpeed });
+            }
+        }
+
+        function spawnEnemy() {
+            const side = Math.floor(Math.random() * 4);
+            let x, y;
+            if (side === 0) { x = Math.random() * canvas.width; y = -20; }
+            else if (side === 1) { x = canvas.width + 20; y = Math.random() * canvas.height; }
+            else if (side === 2) { x = Math.random() * canvas.width; y = canvas.height + 20; }
+            else { x = -20; y = Math.random() * canvas.height; }
+
+            const isHard = Math.random() > 0.8;
+            enemies.push({ x: x, y: y, radius: isHard ? 14 : 9, speed: isHard ? 1.2 : 2.0, health: isHard ? 3 : 1, damage: isHard ? 25 : 10, color: isHard ? "#f43f5e" : "#e11d48", scoreValue: isHard ? 50 : 20, xpValue: isHard ? 3 : 1 });
+        }
+
+        function updateUI() {
+            document.getElementById("scoreCount").innerText = score;
+            document.getElementById("gemCount").innerText = gems;
+        }
+
+        function triggerUpgradeMenu() {
+            isRunning = false;
+            const overlay = document.getElementById("upgradeOverlay");
+            const container = document.getElementById("upgradeOptions");
+            overlay.classList.remove("hidden");
+            container.innerHTML = "";
+
+            const options = [
+                { title: "🚀 Veloz", desc: "+20% Movimiento", apply: () => playerStats.speed += 0.8 },
+                { title: "⚡ Cadencia", desc: "-25% Recarga", apply: () => playerStats.fireRate = Math.max(120, playerStats.fireRate * 0.75) },
+                { title: "💥 Potencia", desc: "+50% Daño", apply: () => playerStats.bulletDamage += 1 }
+            ];
+
+            options.forEach(opt => {
+                const btn = document.createElement("button");
+                btn.className = "w-full bg-slate-900 border border-slate-700 p-3 rounded-xl text-left flex flex-col";
+                btn.innerHTML = `<span class="font-bold text-emerald-400 text-xs">${opt.title}</span><span class="text-[10px] text-slate-300 mt-0.5">${opt.desc}</span>`;
+                btn.onclick = () => { opt.apply(); overlay.classList.add("hidden"); isRunning = true; requestAnimationFrame(gameLoop); };
+                container.appendChild(btn);
+            });
+        }
+
+        function endGame() {
+            isRunning = false;
+            clearInterval(survivalInterval);
+            document.getElementById("finalScore").innerText = score;
+            document.getElementById("gameOverOverlay").classList.remove("hidden");
+
+            // Guardar puntaje en la D1 de la dApp principal
+            saveScoreToD1(score);
         }
     </script>
 </body>
