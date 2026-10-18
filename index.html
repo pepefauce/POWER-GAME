@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>POWER GAME - DeFi Survivors</title>
+    <title>POWER CRAFT - Space Tactical RTS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Space Grotesk', sans-serif; touch-action: none; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
         canvas { touch-action: none; }
-        .glow-emerald { box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); }
+        .glow-cyan { box-shadow: 0 0 20px rgba(6, 182, 212, 0.4); }
         .glow-amber { box-shadow: 0 0 20px rgba(245, 158, 11, 0.4); }
     </style>
 </head>
@@ -19,9 +19,9 @@
     <!-- HEADER TÁCTICO -->
     <header class="p-3 border-b border-slate-800/80 flex justify-between items-center w-full bg-slate-950/90 z-20">
         <div>
-            <h1 class="font-black text-sm text-emerald-400 flex items-center gap-1.5 tracking-wider">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-                POWER SURVIVORS <span class="text-[9px] bg-emerald-950 text-emerald-300 border border-emerald-800/60 px-1 py-0.2 rounded font-mono">PRO 3.0</span>
+            <h1 class="font-black text-sm text-cyan-400 flex items-center gap-1.5 tracking-wider">
+                <span class="w-2 h-2 rounded-full bg-cyan-500 animate-ping"></span>
+                POWER CRAFT <span class="text-[9px] bg-cyan-950 text-cyan-300 border border-cyan-800/60 px-1 py-0.2 rounded font-mono">RTS v1.0</span>
             </h1>
             <p id="timerDisplay" class="text-[10px] text-amber-400 font-mono">Verificando pase...</p>
         </div>
@@ -30,120 +30,86 @@
         </button>
     </header>
 
-    <!-- PANEL SUPERIOR DE ESTADÍSTICAS DEL JUEGO -->
+    <!-- PANEL DE RECURSOS Y ESTADÍSTICAS -->
     <div id="gameUI" class="px-3 py-2 bg-slate-900/90 border-b border-slate-800 flex justify-between items-center text-xs font-mono z-10">
-        <div class="flex items-center gap-1 text-emerald-400 font-bold">
-            <span>💎 FLOW:</span> <span id="gemCount">0</span>
-        </div>
         <div class="flex items-center gap-1 text-amber-400 font-bold">
-            <span>⚡ NIVEL:</span> <span id="playerLevel">1</span>
+            <span>⚡ ENERGÍA:</span> <span id="energyCount">100</span>
+        </div>
+        <div class="flex items-center gap-1 text-emerald-400 font-bold">
+            <span>🛡️ FLOTA:</span> <span id="fleetCount">0</span>
         </div>
         <div class="flex items-center gap-1 text-cyan-400 font-bold">
-            <span>⏱️ TIEMPO:</span> <span id="survivalTimer">00:00</span>
+            <span>⚔️ OLEADA:</span> <span id="waveCount">1</span>
         </div>
     </div>
 
-    <!-- BARRA DE EXPERIENCIA -->
-    <div class="w-full bg-slate-900 h-1.5 z-10">
-        <div id="xpBar" class="bg-gradient-to-r from-emerald-500 to-amber-400 h-full w-0% transition-all duration-200"></div>
-    </div>
-
-    <!-- CANVAS DEL JUEGO HTML5 -->
+    <!-- CANVAS DEL JUEGO ESTILO RTS -->
     <main class="flex-grow relative flex items-center justify-center overflow-hidden bg-slate-950">
         
-        <!-- PANTALLA INICIAL DE START -->
+        <!-- PANTALLA INICIAL -->
         <div id="startOverlay" class="absolute inset-0 z-30 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center space-y-5">
-            <div class="w-16 h-16 rounded-full bg-emerald-500/10 border-2 border-emerald-500 flex items-center justify-center text-3xl animate-bounce glow-emerald">
-                ⚔️
+            <div class="w-16 h-16 rounded-full bg-cyan-500/10 border-2 border-cyan-500 flex items-center justify-center text-3xl animate-bounce glow-cyan">
+                🛰️
             </div>
             <div>
-                <h2 class="text-2xl font-black text-white tracking-wide">DEFENSA DE LIQUIDEZ</h2>
-                <p class="text-slate-400 text-xs mt-1">Sobrevive a las olas de RugPulls y destruye los bots de arbitraje para acumular poder.</p>
+                <h2 class="text-2xl font-black text-white tracking-wide">ESTRATEGIA ESPACIAL</h2>
+                <p class="text-slate-400 text-xs mt-1">Despliega unidades tácticas, defiende el sector estelar y destruye las naves nodrizas enemigas.</p>
             </div>
 
             <div class="bg-slate-900 border border-slate-800 p-3 rounded-2xl w-full text-left space-y-1.5 text-[11px] text-slate-300">
-                <p class="text-amber-400 font-bold">🕹️ Controles Móviles:</p>
-                <p>• Arrastra el dedo en pantalla para mover el **Núcleo FLOW**.</p>
-                <p>• Los disparos son **automáticos** hacia el enemigo más cercano.</p>
-                <p>• Recoge gemas verdes para subir de nivel y desbloquear mejoras.</p>
+                <p class="text-cyan-400 font-bold">🕹️ Mecánicas Tácticas:</p>
+                <p>• Toca la pantalla para **desplegar Caza Estelar** (Consume 25 Energía).</p>
+                <p>• La energía se recarga automáticamente con el tiempo.</p>
+                <p>• Tus cazas atacan automáticamente a los intrusos enemigos.</p>
             </div>
 
-            <button onclick="startGame()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black py-4 rounded-2xl shadow-xl transition active:scale-95 text-sm uppercase tracking-wider glow-emerald">
-                🚀 INICIAR DEFENSA TÁCTICA
+            <button onclick="startGame()" class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black py-4 rounded-2xl shadow-xl transition active:scale-95 text-sm uppercase tracking-wider glow-cyan">
+                🚀 INICIAR OPERACIÓN TÁCTICA
             </button>
         </div>
 
-        <!-- OVERLAY DE MEJORA (UPGRADE) AL SUBIR DE NIVEL -->
-        <div id="upgradeOverlay" class="hidden absolute inset-0 z-40 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center space-y-4">
-            <h3 class="text-xl font-black text-amber-400 tracking-wider">⚡ ¡MEJORA DE NÚCLEO DISPONIBLE!</h3>
-            <p class="text-xs text-slate-300">Selecciona un módulo para potenciar tu nodo:</p>
-            <div id="upgradeOptions" class="w-full space-y-2.5">
-                <!-- Opciones dinámicas -->
-            </div>
-        </div>
-
-        <!-- OVERLAY DE GAME OVER -->
+        <!-- PANTALLA DE GAME OVER -->
         <div id="gameOverOverlay" class="hidden absolute inset-0 z-40 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center space-y-4">
             <div class="w-16 h-16 rounded-full bg-rose-500/10 border-2 border-rose-500 flex items-center justify-center text-3xl">
-                💀
+                💥
             </div>
-            <h3 class="text-2xl font-black text-rose-400">LIQUIDEZ DRENADA</h3>
-            <p class="text-xs text-slate-400">Tu nodo sucumbió ante la ola de ataques.</p>
+            <h3 class="text-2xl font-black text-rose-400">SECTOR COLAPSADO</h3>
+            <p class="text-xs text-slate-400">La base nodriza fue destruida por la flota enemiga.</p>
 
             <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl w-full text-center space-y-2 font-mono">
-                <p class="text-xs text-slate-400">Puntaje Total:</p>
-                <p id="finalScore" class="text-3xl font-black text-amber-400">0</p>
-                <div class="grid grid-cols-2 gap-2 text-[10px] text-slate-300 pt-2 border-t border-slate-800">
-                    <div>Tiempo: <span id="finalTime" class="text-emerald-400 font-bold">0s</span></div>
-                    <div>Gemas: <span id="finalGems" class="text-cyan-400 font-bold">0</span></div>
-                </div>
+                <p class="text-xs text-slate-400">Oleadas Resistidas:</p>
+                <p id="finalWave" class="text-3xl font-black text-cyan-400">1</p>
             </div>
 
-            <button onclick="startGame()" class="w-full bg-emerald-500 text-slate-950 font-bold py-3.5 rounded-2xl text-xs uppercase tracking-wider transition active:scale-95 glow-emerald">
-                🔄 Reintentar Partida
+            <button onclick="startGame()" class="w-full bg-cyan-500 text-slate-950 font-bold py-3.5 rounded-2xl text-xs uppercase tracking-wider transition active:scale-95 glow-cyan">
+                🔄 Reintentar Operación
             </button>
         </div>
 
-        <!-- CANVAS DEL JUEGO -->
+        <!-- CANVAS -->
         <canvas id="gameCanvas" class="w-full h-full block"></canvas>
     </main>
 
     <!-- FOOTER -->
     <footer class="p-2 text-center text-[10px] text-slate-600 border-t border-slate-900 font-mono z-20">
-        &copy; 2026 MULTISWAP POWER FLOW • SURVIVORS ENGINE
+        &copy; 2026 MULTISWAP POWER FLOW • POWER CRAFT RTS
     </footer>
 
-    <!-- LÓGICA COMPLETA EN MOTOR CANVAS JS -->
+    <!-- SCRIPT DE LÓGICA RTS -->
     <script>
         const DAPP_PRINCIPAL_URL = "https://multiswap-power-flow.pages.dev";
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
 
-        // Estado del juego
         let isRunning = false;
-        let score = 0;
-        let gems = 0;
-        let level = 1;
-        let xp = 0;
-        let xpToNext = 5;
-        let secondsSurvived = 0;
-        let survivalInterval = null;
-
-        // Entidades
-        let player, bullets, enemies, gemsList, particles;
-        let touchX = null, touchY = null;
-
-        // Atributos de la Nave / Jugador
-        let playerStats = {
-            speed: 4,
-            fireRate: 350, // ms entre disparos
-            lastShootTime: 0,
-            bulletDamage: 1,
-            bulletSpeed: 7,
-            maxHealth: 100,
-            health: 100,
-            magnetRadius: 80
-        };
+        let energy = 100;
+        let wave = 1;
+        let baseHealth = 100;
+        
+        let playerUnits = [];
+        let enemyUnits = [];
+        let bullets = [];
+        let particles = [];
 
         function exitToMainDapp() {
             window.location.href = DAPP_PRINCIPAL_URL;
@@ -159,7 +125,6 @@
         document.addEventListener("DOMContentLoaded", () => {
             resizeCanvas();
 
-            // Cargar credenciales
             const urlParams = new URLSearchParams(window.location.search);
             const walletParam = urlParams.get("wallet");
             const expiryParam = urlParams.get("expiry");
@@ -186,84 +151,81 @@
                     return;
                 }
             } else {
-                if (timerEl) timerEl.innerText = `Modo Libre Pruebas`;
+                if (timerEl) timerEl.innerText = `Modo Prueba Libre`;
             }
 
-            setupControls();
-        });
-
-        // Controles táctiles responsivos
-        function setupControls() {
+            // Tocar la pantalla despliega una unidad si hay energía
             canvas.addEventListener("touchstart", (e) => {
+                if (!isRunning) return;
                 const touch = e.touches[0];
                 const rect = canvas.getBoundingClientRect();
-                touchX = touch.clientX - rect.left;
-                touchY = touch.clientY - rect.top;
-            });
+                const x = touch.clientX - rect.left;
+                const y = touch.clientY - rect.top;
 
-            canvas.addEventListener("touchmove", (e) => {
-                e.preventDefault();
-                const touch = e.touches[0];
-                const rect = canvas.getBoundingClientRect();
-                touchX = touch.clientX - rect.left;
-                touchY = touch.clientY - rect.top;
+                // Solo desplegar en la mitad inferior de la pantalla (zona de comandos del jugador)
+                if (y > canvas.height * 0.5 && energy >= 25) {
+                    energy -= 25;
+                    playerUnits.push({
+                        x: x,
+                        y: y,
+                        targetY: y - 150,
+                        speed: 2.5,
+                        radius: 8,
+                        health: 30,
+                        lastShot: 0
+                    });
+                    updateUI();
+                }
             });
-
-            canvas.addEventListener("touchend", () => {
-                touchX = null;
-                touchY = null;
-            });
-        }
+        });
 
         function startGame() {
             document.getElementById("startOverlay").classList.add("hidden");
             document.getElementById("gameOverOverlay").classList.add("hidden");
-            document.getElementById("upgradeOverlay").classList.add("hidden");
 
-            // Reset de estadísticas
-            score = 0;
-            gems = 0;
-            level = 1;
-            xp = 0;
-            xpToNext = 5;
-            secondsSurvived = 0;
-
-            playerStats = {
-                speed: 4,
-                fireRate: 350,
-                lastShootTime: 0,
-                bulletDamage: 1,
-                bulletSpeed: 7,
-                maxHealth: 100,
-                health: 100,
-                magnetRadius: 90
-            };
-
-            player = {
-                x: canvas.width / 2,
-                y: canvas.height / 2,
-                radius: 14
-            };
-
+            energy = 100;
+            wave = 1;
+            baseHealth = 100;
+            playerUnits = [];
+            enemyUnits = [];
             bullets = [];
-            enemies = [];
-            gemsList = [];
             particles = [];
 
             isRunning = true;
             updateUI();
 
-            if (survivalInterval) clearInterval(survivalInterval);
-            survivalInterval = setInterval(() => {
-                if (isRunning) {
-                    secondsSurvived++;
-                    const mins = String(Math.floor(secondsSurvived / 60)).padStart(2, '0');
-                    const secs = String(secondsSurvived % 60).padStart(2, '0');
-                    document.getElementById("survivalTimer").innerText = `${mins}:${secs}`;
+            // Recarga de energía automática
+            setInterval(() => {
+                if (isRunning && energy < 100) {
+                    energy = Math.min(100, energy + 5);
+                    updateUI();
                 }
             }, 1000);
 
+            // Generador de oleadas enemigas
+            setInterval(() => {
+                if (isRunning) {
+                    spawnEnemyWave();
+                    wave++;
+                    updateUI();
+                }
+            }, 8000);
+
             requestAnimationFrame(gameLoop);
+        }
+
+        function spawnEnemyWave() {
+            const count = Math.min(6, 2 + wave);
+            for (let i = 0; i < count; i++) {
+                enemyUnits.push({
+                    x: Math.random() * (canvas.width - 40) + 20,
+                    y: -30 - (i * 25),
+                    speed: 1.2 + (wave * 0.1),
+                    radius: 10,
+                    health: 20 + (wave * 5),
+                    lastShot: 0
+                });
+            }
         }
 
         function gameLoop(timestamp) {
@@ -271,275 +233,113 @@
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // 1. Mover Jugador
-            if (touchX !== null && touchY !== null) {
-                const dx = touchX - player.x;
-                const dy = touchY - player.y;
-                const dist = Math.hypot(dx, dy);
+            // 1. Dibujar Base Nodriza (Línea defensiva inferior)
+            ctx.fillStyle = "rgba(6, 182, 212, 0.15)";
+            ctx.fillRect(0, canvas.height - 40, canvas.width, 40);
+            ctx.strokeStyle = "#06b6d4";
+            ctx.lineWidth = 2;
+            ctx.strokeRect(0, canvas.height - 40, canvas.width, 40);
 
-                if (dist > 5) {
-                    player.x += (dx / dist) * playerStats.speed;
-                    player.y += (dy / dist) * playerStats.speed;
+            ctx.fillStyle = "#06b6d4";
+            ctx.font = "10px 'JetBrains Mono'";
+            ctx.fillText(`BASE NODRIZA: ${baseHealth}%`, 15, canvas.height - 16);
+
+            // 2. Actualizar Unidades del Jugador (Cazas)
+            playerUnits.forEach((unit, index) => {
+                if (unit.y > unit.targetY) {
+                    unit.y -= unit.speed;
                 }
-            }
 
-            // Limitar a pantalla
-            player.x = Math.max(player.radius, Math.min(canvas.width - player.radius, player.x));
-            player.y = Math.max(player.radius, Math.min(canvas.height - player.radius, player.y));
+                // Dibujar Caza
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(unit.x, unit.y, unit.radius, 0, Math.PI * 2);
+                ctx.fillStyle = "#38bdf8";
+                ctx.shadowColor = "#38bdf8";
+                ctx.shadowBlur = 10;
+                ctx.fill();
+                ctx.restore();
 
-            // Dibujar Jugador (Núcleo FLOW)
-            ctx.save();
-            ctx.beginPath();
-            ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
-            ctx.fillStyle = "#10b981";
-            ctx.shadowColor = "#10b981";
-            ctx.shadowBlur = 15;
-            ctx.fill();
-            ctx.restore();
+                // Disparo automático a enemigos cercanos
+                if (timestamp - unit.lastShot > 500) {
+                    let target = enemyUnits[0];
+                    if (target) {
+                        bullets.push({
+                            x: unit.x,
+                            y: unit.y,
+                            vx: 0,
+                            vy: -6,
+                            isPlayer: true
+                        });
+                        unit.lastShot = timestamp;
+                    }
+                }
+            });
 
-            // Disparo Automático
-            if (timestamp - playerStats.lastShootTime > playerStats.fireRate) {
-                shootNearestEnemy();
-                playerStats.lastShootTime = timestamp;
-            }
+            // 3. Actualizar Unidades Enemigas
+            enemyUnits.forEach((en, index) => {
+                en.y += en.speed;
 
-            // 2. Generar Enemigos
-            if (Math.random() < 0.03 + (secondsSurvived * 0.0005)) {
-                spawnEnemy();
-            }
+                // Dibujar Enemigo
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(en.x, en.y, en.radius, 0, Math.PI * 2);
+                ctx.fillStyle = "#f43f5e";
+                ctx.shadowColor = "#f43f5e";
+                ctx.shadowBlur = 10;
+                ctx.fill();
+                ctx.restore();
 
-            // 3. Actualizar Balas
+                // Si el enemigo llega a la base
+                if (en.y >= canvas.height - 40) {
+                    baseHealth -= 10;
+                    enemyUnits.splice(index, 1);
+                    if (baseHealth <= 0) {
+                        endGame();
+                    }
+                }
+            });
+
+            // 4. Actualizar Proyectiles
             bullets.forEach((b, index) => {
                 b.x += b.vx;
                 b.y += b.vy;
 
                 ctx.beginPath();
-                ctx.arc(b.x, b.y, 4, 0, Math.PI * 2);
-                ctx.fillStyle = "#38bdf8";
+                ctx.arc(b.x, b.y, 3, 0, Math.PI * 2);
+                ctx.fillStyle = b.isPlayer ? "#38bdf8" : "#f43f5e";
                 ctx.fill();
 
-                if (b.x < 0 || b.x > canvas.width || b.y < 0 || b.y > canvas.height) {
+                // Colisión balas del jugador con enemigos
+                if (b.isPlayer) {
+                    enemyUnits.forEach((en, enIndex) => {
+                        if (Math.hypot(b.x - en.x, b.y - en.y) < en.radius + 3) {
+                            en.health -= 15;
+                            bullets.splice(index, 1);
+                            if (en.health <= 0) {
+                                enemyUnits.splice(enIndex, 1);
+                            }
+                        }
+                    });
+                }
+
+                if (b.y < 0 || b.y > canvas.height) {
                     bullets.splice(index, 1);
                 }
-            });
-
-            // 4. Actualizar Enemigos
-            enemies.forEach((e, index) => {
-                const dx = player.x - e.x;
-                const dy = player.y - e.y;
-                const dist = Math.hypot(dx, dy);
-
-                e.x += (dx / dist) * e.speed;
-                e.y += (dy / dist) * e.speed;
-
-                // Dibujar Enemigo
-                ctx.save();
-                ctx.beginPath();
-                ctx.arc(e.x, e.y, e.radius, 0, Math.PI * 2);
-                ctx.fillStyle = e.color;
-                ctx.shadowColor = e.color;
-                ctx.shadowBlur = 8;
-                ctx.fill();
-                ctx.restore();
-
-                // Colisión con el Jugador
-                if (dist < player.radius + e.radius) {
-                    playerStats.health -= e.damage;
-                    enemies.splice(index, 1);
-                    createExplosion(e.x, e.y, e.color);
-
-                    if (playerStats.health <= 0) {
-                        endGame();
-                    }
-                }
-
-                // Colisión con Balas
-                bullets.forEach((b, bIndex) => {
-                    const bDist = Math.hypot(b.x - e.x, b.y - e.y);
-                    if (bDist < e.radius + 4) {
-                        e.health -= playerStats.bulletDamage;
-                        bullets.splice(bIndex, 1);
-
-                        if (e.health <= 0) {
-                            enemies.splice(index, 1);
-                            createExplosion(e.x, e.y, e.color);
-                            spawnGem(e.x, e.y, e.xpValue);
-                            score += e.scoreValue;
-                        }
-                    }
-                });
-            });
-
-            // 5. Actualizar Gemas y Magnetismo
-            gemsList.forEach((g, index) => {
-                const dx = player.x - g.x;
-                const dy = player.y - g.y;
-                const dist = Math.hypot(dx, dy);
-
-                if (dist < playerStats.magnetRadius) {
-                    g.x += (dx / dist) * 6;
-                    g.y += (dy / dist) * 6;
-                }
-
-                ctx.beginPath();
-                ctx.arc(g.x, g.y, 4, 0, Math.PI * 2);
-                ctx.fillStyle = "#fbbf24";
-                ctx.fill();
-
-                if (dist < player.radius + 4) {
-                    addXP(g.value);
-                    gemsList.splice(index, 1);
-                }
-            });
-
-            // 6. Partículas
-            particles.forEach((p, index) => {
-                p.x += p.vx;
-                p.y += p.vy;
-                p.alpha -= 0.03;
-
-                ctx.save();
-                ctx.globalAlpha = Math.max(0, p.alpha);
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                ctx.fillStyle = p.color;
-                ctx.fill();
-                ctx.restore();
-
-                if (p.alpha <= 0) particles.splice(index, 1);
             });
 
             requestAnimationFrame(gameLoop);
         }
 
-        function shootNearestEnemy() {
-            if (enemies.length === 0) return;
-
-            let nearest = null;
-            let minDist = Infinity;
-
-            enemies.forEach(e => {
-                const dist = Math.hypot(e.x - player.x, e.y - player.y);
-                if (dist < minDist) {
-                    minDist = dist;
-                    nearest = e;
-                }
-            });
-
-            if (nearest) {
-                const dx = nearest.x - player.x;
-                const dy = nearest.y - player.y;
-                const angle = Math.atan2(dy, dx);
-
-                bullets.push({
-                    x: player.x,
-                    y: player.y,
-                    vx: Math.cos(angle) * playerStats.bulletSpeed,
-                    vy: Math.sin(angle) * playerStats.bulletSpeed
-                });
-            }
-        }
-
-        function spawnEnemy() {
-            const side = Math.floor(Math.random() * 4);
-            let x, y;
-
-            if (side === 0) { x = Math.random() * canvas.width; y = -20; }
-            else if (side === 1) { x = canvas.width + 20; y = Math.random() * canvas.height; }
-            else if (side === 2) { x = Math.random() * canvas.width; y = canvas.height + 20; }
-            else { x = -20; y = Math.random() * canvas.height; }
-
-            const isHard = Math.random() > 0.8;
-
-            enemies.push({
-                x: x,
-                y: y,
-                radius: isHard ? 14 : 9,
-                speed: isHard ? 1.2 : 2.0,
-                health: isHard ? 3 : 1,
-                damage: isHard ? 25 : 10,
-                color: isHard ? "#f43f5e" : "#e11d48",
-                scoreValue: isHard ? 50 : 20,
-                xpValue: isHard ? 3 : 1
-            });
-        }
-
-        function spawnGem(x, y, value) {
-            gemsList.push({ x: x, y: y, value: value });
-        }
-
-        function createExplosion(x, y, color) {
-            for (let i = 0; i < 8; i++) {
-                particles.push({
-                    x: x, y: y,
-                    vx: (Math.random() - 0.5) * 4,
-                    vy: (Math.random() - 0.5) * 4,
-                    size: Math.random() * 3 + 1,
-                    color: color,
-                    alpha: 1
-                });
-            }
-        }
-
-        function addXP(amount) {
-            gems += amount;
-            xp += amount;
-
-            if (xp >= xpToNext) {
-                xp = 0;
-                level++;
-                xpToNext = Math.round(xpToNext * 1.5);
-                triggerUpgradeMenu();
-            }
-
-            updateUI();
-        }
-
         function updateUI() {
-            document.getElementById("gemCount").innerText = gems;
-            document.getElementById("playerLevel").innerText = level;
-            const pct = Math.min(100, (xp / xpToNext) * 100);
-            document.getElementById("xpBar").style.width = `${pct}%`;
-        }
-
-        function triggerUpgradeMenu() {
-            isRunning = false;
-            const overlay = document.getElementById("upgradeOverlay");
-            const container = document.getElementById("upgradeOptions");
-            overlay.classList.remove("hidden");
-            container.innerHTML = "";
-
-            const options = [
-                { title: "🚀 Propulsor Hyper", desc: "+20% Velocidad de Movimiento", apply: () => playerStats.speed += 0.8 },
-                { title: "⚡ Cañón Láser Rapid", desc: "-25% Tiempo de Recarga", apply: () => playerStats.fireRate = Math.max(120, playerStats.fireRate * 0.75) },
-                { title: "💥 Carga Plasma", desc: "+50% Daño por Disparo", apply: () => playerStats.bulletDamage += 1 },
-                { title: "🧲 Campo Magnético", desc: "+40% Rango Recoge-Gemas", apply: () => playerStats.magnetRadius += 35 }
-            ];
-
-            // Seleccionar 3 opciones aleatorias
-            const shuffled = options.sort(() => 0.5 - Math.random()).slice(0, 3);
-
-            shuffled.forEach(opt => {
-                const btn = document.createElement("button");
-                btn.className = "w-full bg-slate-900 border border-slate-700 hover:border-emerald-500 p-3 rounded-xl text-left transition active:scale-95 flex flex-col cursor-pointer";
-                btn.innerHTML = `<span class="font-bold text-emerald-400 text-xs">${opt.title}</span><span class="text-[10px] text-slate-300 mt-0.5">${opt.desc}</span>`;
-                btn.onclick = () => {
-                    opt.apply();
-                    overlay.classList.add("hidden");
-                    isRunning = true;
-                    requestAnimationFrame(gameLoop);
-                };
-                container.appendChild(btn);
-            });
+            document.getElementById("energyCount").innerText = energy;
+            document.getElementById("fleetCount").innerText = playerUnits.length;
+            document.getElementById("waveCount").innerText = wave;
         }
 
         function endGame() {
             isRunning = false;
-            clearInterval(survivalInterval);
-
-            document.getElementById("finalScore").innerText = score;
-            document.getElementById("finalGems").innerText = gems;
-            document.getElementById("finalTime").innerText = `${secondsSurvived}s`;
+            document.getElementById("finalWave").innerText = wave;
             document.getElementById("gameOverOverlay").classList.remove("hidden");
         }
     </script>
