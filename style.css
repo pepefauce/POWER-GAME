@@ -1,0 +1,8 @@
+body {
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+/* Estilos adicionales específicos para el juego si los necesitas */
+.game-cell {
+    transition: all 0.2s ease-in-out;
+}
