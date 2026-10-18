@@ -1,5 +1,5 @@
-// 🔗 URL de tu dApp principal de pago
-const DAPP_PRINCIPAL_URL = "https://pepe-fauce.pages.dev";
+// 🔗 URL exacta de tu dApp principal de FLOW
+const DAPP_PRINCIPAL_URL = "https://multiswap-power-flow.pages.dev";
 
 // 🛡️ GUARDIÁN DE ACCESO (APAGADO AUTOMÁTICO A LAS 24 HORAS)
 (function checkAccessAndExpiry() {
@@ -29,7 +29,7 @@ const DAPP_PRINCIPAL_URL = "https://pepe-fauce.pages.dev";
     // 3. Si el pase sigue activo, calcula el tiempo restante exacto
     const timeLeftMs = parseInt(storedExpiry) - now;
     
-    // Programar apagado automático en tiempo real cuando se cumplan las 24h estando dentro
+    // Programar apagado automático en tiempo real cuando se cumplan las 24h
     setTimeout(() => {
         alert("⏳ Tus 24 horas de acceso han finalizado.");
         localStorage.removeItem("game_expiry");
@@ -66,7 +66,7 @@ function startTimerDisplay() {
     setInterval(update, 1000);
 }
 
-// Inicializar la grilla táctica de ejemplo del juego
+// Inicializar la grilla táctica del juego
 function initGrid() {
     const gridContainer = document.getElementById("gameGrid");
     if (!gridContainer) return;
