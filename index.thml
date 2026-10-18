@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-950 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POWER GAME - DeFi Tactical Module</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Space Grotesk', sans-serif; }</style>
+</head>
+<body class="min-h-screen flex flex-col justify-between select-none p-4 max-w-md mx-auto">
+
+    <!-- 🛡️ GUARDIÁN DE ACCESO (APAGADO A LAS 24 HORAS) -->
+    <script>
+        // 🔗 URL de tu dApp principal de pago (ajústala si es diferente)
+        const DAPP_PRINCIPAL_URL = "https://pepe-fauce.pages.dev";
+
+        (function checkAccessAndExpiry() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const walletParam = urlParams.get("wallet");
+            const expiryParam = urlParams.get("expiry");
+
+            // 1. Si viene con parámetros de pago frescos desde la dApp principal, guarda el pase localmente
+            if (walletParam && expiryParam) {
+                localStorage.setItem("game_wallet", walletParam.toLowerCase());
+                localStorage.setItem("game_expiry", expiryParam);
+                // Limpia la URL borrando los parámetros visibles sin recargar
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
+            const storedExpiry = localStorage.getItem("game_expiry");
+            const now = Date.now();
+
+            // 2. Si no hay pase o ya pasaron las 24 horas, apaga el acceso y regresa a la dApp principal
+            if (!storedExpiry || now >= parseInt(storedExpiry)) {
+                alert("🔒 El pase de 24 horas ha caducado o no está activo. Vuelve a la dApp para renovarlo.");
+                localStorage.removeItem("game_expiry");
+                window.location.href = DAPP_PRINCIPAL_URL;
+                return;
+            }
+
+            // 3. Si el pase sigue activo, calcula el tiempo restante
+            const timeLeftMs = parseInt(storedExpiry) - now;
+            
+            // Programar apagado automático en tiempo real cuando se cumplan las 24h
+            setTimeout(() => {
+                alert("⏳ Tus 24 horas de acceso han finalizado.");
+                localStorage.removeItem("game_expiry");
+                window.location.href = DAPP_PRINCIPAL_URL;
+            }, timeLeftMs);
+        })();
+    </script>
+
+    <!-- HEADER DE LA DAPP DEL JUEGO -->
+    <header class="py-3 border-b border-slate-800 flex justify-between items-center w-full">
+        <div>
+            <h1 class="font-bold text-sm text-emerald-400 flex items-center gap-1.5">
+                ⚔️ POWER GAME
+            </h1>
+            <p id="timerDisplay" class="text-[10px] text-amber-400 font-mono">Calculando tiempo...</p>
+        </div>
+        <button onclick="exitToMainDapp()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-xl font-bold transition">
+            Volver a dApp 🚪
+        </button>
+    </header>
+
+    <!-- ÁREA DEL JUEGO -->
+    <main class="flex-grow flex flex-col justify-center items-center my-6 space-y-4 w-full">
+        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl w-full text-center space-y-2 shadow-xl">
+            <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
+                Módulo Táctico Activo
+            </span>
+            <p class="text-xs text-slate-300">Bienvenido comandante. Interfaz activa bajo tu pase de 24 horas.</p>
+        </div>
+
+        <div id="gameGrid" class="bg-slate-900/60 border border-slate-800 p-4 rounded-2xl w-full aspect-square grid grid-cols-3 gap-3">
+            <!-- Grilla táctica del juego -->
+        </div>
+    </main>
+
+    <footer class="text-center text-[10px] text-slate-600 border-t border-slate-900 pt-3">
+        &copy; 2026 MULTISWAP POWER FLOW - POWER-GAME Module
+    </footer>
+
+    <!-- LÓGICA DEL CONTADOR DE TIEMPO Y DEL JUEGO -->
+    <script>
+        function exitToMainDapp() {
+            window.location.href = DAPP_PRINCIPAL_URL;
+        }
+
+        // Reloj en pantalla mostrando las horas/minutos restantes del pase
+        function startTimerDisplay() {
+            const expiry = localStorage.getItem("game_expiry");
+            const timerEl = document.getElementById("timerDisplay");
+
+            if (!expiry || !timerEl) return;
+
+            function update() {
+                const diff = parseInt(expiry) - Date.now();
+                if (diff <= 0) {
+                    timerEl.innerText = "Pase Expirado";
+                    return;
+                }
+                const hrs = Math.floor(diff / (1000 * 60 * 60));
+                const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const secs = Math.floor((diff % (1000 * 60)) / 1000);
+                timerEl.innerText = `Tiempo restante: ${hrs}h ${mins}m ${secs}s`;
+            }
+
+            update();
+            setInterval(update, 1000);
+        }
+
+        function initGrid() {
+            const gridContainer = document.getElementById("gameGrid");
+            if (!gridContainer) return;
+            gridContainer.innerHTML = "";
+            for (let i = 0; i < 9; i++) {
+                const cell = document.createElement("div");
+                cell.className = "bg-slate-950 border border-slate-800 rounded-xl flex items-center justify-center text-xl cursor-pointer hover:border-emerald-500/50 transition select-none";
+                cell.innerHTML = "⚡";
+                cell.onclick = () => {
+                    cell.innerHTML = cell.innerHTML === "⚡" ? "💥" : "⚡";
+                };
+                gridContainer.appendChild(cell);
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            startTimerDisplay();
+            initGrid();
+        });
+    </script>
+</body>
+</html>
