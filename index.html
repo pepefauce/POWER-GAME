@@ -186,11 +186,13 @@
         // LEER POZO Y LEADERBOARD DESDE D1
         async function loadD1Data() {
             try {
-                const res = await fetch(API_D1_URL);
+                const res = await fetch(API_D1_URL, { method: "GET", headers: { "Accept": "application/json" } });
                 const data = await res.json();
 
                 if (data.prizePool !== undefined) {
-                    document.getElementById("prizePoolDisplay").innerText = `${data.prizePool.toLocaleString()} FLOW`;
+                    document.getElementById("prizePoolDisplay").innerText = `${Number(data.prizePool).toLocaleString()} FLOW`;
+                } else {
+                    document.getElementById("prizePoolDisplay").innerText = "1,000 FLOW";
                 }
 
                 const listEl = document.getElementById("leaderboardList");
@@ -201,7 +203,7 @@
                         listEl.innerHTML += `
                             <div class="flex justify-between text-slate-300 font-mono text-xs">
                                 <span>${index + 1}. ${shortWallet}</span>
-                                <span class="text-emerald-400 font-bold">${item.high_score.toLocaleString()} pts</span>
+                                <span class="text-emerald-400 font-bold">${Number(item.high_score).toLocaleString()} pts</span>
                             </div>
                         `;
                     });
@@ -211,30 +213,48 @@
             } catch (err) {
                 console.error("Error conectando con D1:", err);
                 document.getElementById("prizePoolDisplay").innerText = "1,000 FLOW";
+                document.getElementById("leaderboardList").innerHTML = "<p class='text-rose-400 text-center'>Error al sincronizar D1</p>";
             }
         }
 
         // GUARDAR PUNTAJE AL MORIR
         async function saveScoreToD1(finalScore) {
-            const wallet = localStorage.getItem("game_wallet");
+            let wallet = localStorage.getItem("game_wallet");
             const statusEl = document.getElementById("scoreSyncStatus");
 
             if (!wallet) {
-                statusEl.innerText = "Modo prueba (No registrado)";
+                // Intentar recuperar de parámetros URL o poner un respaldo temporal si es necesario
+                const urlParams = new URLSearchParams(window.location.search);
+                wallet = urlParams.get("wallet") || localStorage.getItem("flow_active_wallet");
+                if (wallet) {
+                    wallet = wallet.toLowerCase();
+                    localStorage.setItem("game_wallet", wallet);
+                }
+            }
+
+            if (!wallet) {
+                statusEl.innerText = "Modo prueba (Wallet no detectada)";
                 return;
             }
 
             try {
                 statusEl.innerText = "Guardando récord en D1...";
-                await fetch(API_D1_URL, {
+                const response = await fetch(API_D1_URL, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ wallet: wallet, score: finalScore })
                 });
-                statusEl.innerText = "✅ ¡Récord sincronizado con D1!";
+                
+                const result = await response.json();
+                if (response.ok && result.success) {
+                    statusEl.innerText = "✅ ¡Récord sincronizado con D1!";
+                } else {
+                    statusEl.innerText = "⚠️ Récord procesado, pero revisa D1.";
+                }
                 loadD1Data();
             } catch (e) {
-                statusEl.innerText = "⚠️ Error al guardar puntaje.";
+                console.error(e);
+                statusEl.innerText = "⚠️ Error de red al guardar puntaje.";
             }
         }
 
@@ -425,7 +445,7 @@
             document.getElementById("finalScore").innerText = score;
             document.getElementById("gameOverOverlay").classList.remove("hidden");
 
-            // Guardar puntaje en la D1 de la dApp principal
+            // Sincronizar el puntaje con Cloudflare D1
             saveScoreToD1(score);
         }
     </script>
