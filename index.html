@@ -1,11 +1,93 @@
-    <!-- LÓGICA Y CONEXIÓN A D1 (A PRUEBA DE PANTALLA NEGRA) -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>POWER GAME ARENA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Space Grotesk', sans-serif; touch-action: none; background-color: #020617; }
+        canvas { display: block; width: 100%; height: 100%; }
+    </style>
+</head>
+<body class="text-slate-100 h-screen w-screen overflow-hidden flex flex-col justify-between select-none">
+
+    <!-- HEADER / BARRA SUPERIOR DE ESTADO -->
+    <header class="p-3 bg-slate-900/90 border-b border-slate-800 flex justify-between items-center z-10">
+        <div>
+            <h1 class="font-bold text-sm text-emerald-400">⚔️ POWER GAME</h1>
+            <p id="timerDisplay" class="text-[10px] text-slate-400 font-mono">Cargando Pase...</p>
+        </div>
+        <button onclick="exitToMainDapp()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg font-semibold cursor-pointer">
+            🚪 Salir
+        </button>
+    </header>
+
+    <!-- AREA DEL JUEGO (CANVAS) -->
+    <div class="relative flex-grow w-full h-full bg-slate-950 overflow-hidden">
+        <canvas id="gameCanvas"></canvas>
+
+        <!-- OVERLAY DE INICIO -->
+        <div id="startOverlay" class="absolute inset-0 bg-slate-950/90 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center z-20">
+            <h2 class="text-3xl font-black text-emerald-400 mb-2">POWER GAME ARENA</h2>
+            <p class="text-xs text-slate-400 mb-6 max-w-xs">Sobrevive, recolecta gemas y suma puntaje para clasificar en el pozo semanal de FLOW.</p>
+            
+            <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl w-full max-w-xs mb-6 text-left space-y-2">
+                <div class="flex justify-between text-xs">
+                    <span class="text-slate-400">Pozo Semanal:</span>
+                    <span id="prizePoolDisplay" class="text-amber-400 font-bold font-mono">Cargando...</span>
+                </div>
+                <div class="border-t border-slate-800 pt-2">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase mb-1">Líderes de la Semana:</p>
+                    <div id="leaderboardList" class="space-y-1 text-[11px]">
+                        <p class="text-slate-500 text-center py-1">Cargando ranking...</p>
+                    </div>
+                </div>
+            </div>
+
+            <button id="mainStartBtn" onclick="startGame()" class="w-full max-w-xs bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-3.5 rounded-2xl text-sm shadow-lg shadow-emerald-500/20 transition cursor-pointer">
+                🚀 ¡EMPEZAR A JUGAR!
+            </button>
+        </div>
+
+        <!-- OVERLAY DE GAME OVER -->
+        <div id="gameOverOverlay" class="hidden absolute inset-0 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center z-30">
+            <h2 class="text-3xl font-black text-rose-500 mb-1">¡HAS CAÍDO!</h2>
+            <p class="text-xs text-slate-400 mb-4">Puntaje Final Conseguido:</p>
+            <div id="finalScore" class="text-4xl font-black text-amber-400 font-mono mb-2">0</div>
+            <p id="scoreSyncStatus" class="text-xs text-emerald-400 font-semibold mb-6">Guardando récord...</p>
+
+            <div class="space-y-3 w-full max-w-xs">
+                <button onclick="startGame()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-3 rounded-xl text-xs transition cursor-pointer">
+                    🔄 Jugar de Nuevo
+                </button>
+                <button onclick="exitToMainDapp()" class="w-full bg-slate-900 border border-slate-800 text-slate-300 font-bold py-3 rounded-xl text-xs transition cursor-pointer">
+                    🏠 Volver a la dApp Principal
+                </button>
+            </div>
+        </div>
+
+        <!-- OVERLAY DE MEJORAS (LEVEL UP) -->
+        <div id="upgradeOverlay" class="hidden absolute inset-0 bg-slate-950/80 backdrop-blur-sm flex flex-col items-center justify-center p-6 z-30">
+            <h3 class="text-xl font-bold text-amber-400 mb-4">⚡ ¡SUBISTE DE NIVEL!</h3>
+            <div id="upgradeOptions" class="space-y-3 w-full max-w-xs"></div>
+        </div>
+    </div>
+
+    <!-- FOOTER / STATS -->
+    <footer class="p-3 bg-slate-900/90 border-t border-slate-800 flex justify-between items-center text-xs z-10">
+        <div>Puntos: <span id="scoreCount" class="font-bold text-amber-400 font-mono">0</span></div>
+        <div>Tiempo: <span id="survivalTimer" class="font-bold text-emerald-400 font-mono">00:00</span></div>
+        <div>Gemas: <span id="gemCount" class="font-bold text-amber-300 font-mono">0</span></div>
+    </footer>
+
+    <!-- LÓGICA Y CONEXIÓN A D1 -->
     <script>
         const DAPP_PRINCIPAL_URL = "https://multiswap-power-flow.pages.dev";
         const API_D1_URL = "https://multiswap-power-flow.pages.dev/api/game";
 
-        const canvas = document.getElementById("gameCanvas");
-        const ctx = canvas.getContext("2d");
-
+        let canvas, ctx;
         let isRunning = false;
         let score = 0, gems = 0, level = 1, xp = 0, xpToNext = 5, secondsSurvived = 0;
         let survivalInterval = null;
@@ -14,7 +96,9 @@
 
         let playerStats = { speed: 4, fireRate: 350, lastShootTime: 0, bulletDamage: 1, bulletSpeed: 7, health: 100, magnetRadius: 90 };
 
-        function exitToMainDapp() { window.location.href = DAPP_PRINCIPAL_URL; }
+        function exitToMainDapp() { 
+            window.location.href = DAPP_PRINCIPAL_URL; 
+        }
 
         function resizeCanvas() {
             if (canvas && canvas.parentElement) {
@@ -27,6 +111,11 @@
 
         document.addEventListener("DOMContentLoaded", () => {
             try {
+                canvas = document.getElementById("gameCanvas");
+                if (!canvas) {
+                    throw new Error("No se encontró el elemento gameCanvas en el HTML");
+                }
+                ctx = canvas.getContext("2d");
                 resizeCanvas();
 
                 const urlParams = new URLSearchParams(window.location.search);
@@ -42,6 +131,7 @@
                 }
 
                 const timerEl = document.getElementById("timerDisplay");
+                const startBtn = document.getElementById("mainStartBtn");
                 const storedExpiry = localStorage.getItem("game_expiry");
 
                 if (storedExpiry) {
@@ -51,20 +141,30 @@
                         const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
                         if (timerEl) timerEl.innerText = `Pase Activo: ${hrs}h ${mins}m`;
                     } else {
-                        if (timerEl) timerEl.innerText = `Pase Expirado`;
+                        if (timerEl) timerEl.innerText = `⚠️ Pase Expirado`;
+                        if (startBtn) {
+                            startBtn.innerText = "🔒 PASE EXPIRADO - RENUEVA";
+                            startBtn.className = "w-full max-w-xs bg-slate-800 text-slate-500 font-bold py-3.5 rounded-2xl text-sm cursor-not-allowed";
+                            startBtn.onclick = exitToMainDapp;
+                        }
                     }
                 } else {
-                    if (timerEl) timerEl.innerText = `Prueba Libre`;
+                    if (timerEl) timerEl.innerText = `Sin Pase Activo`;
+                    if (startBtn) {
+                        startBtn.innerText = "🔒 CONÉCTATE DESDE LA dAPP";
+                        startBtn.className = "w-full max-w-xs bg-slate-800 text-slate-500 font-bold py-3.5 rounded-2xl text-sm cursor-not-allowed";
+                        startBtn.onclick = exitToMainDapp;
+                    }
                 }
 
                 setupControls();
                 loadD1Data();
             } catch (err) {
                 console.error("Error crítico al iniciar el juego:", err);
+                document.body.innerHTML = `<div style="color:white;padding:30px;background:#020617;height:100vh;font-family:sans-serif;"><h2>⚠️ Error al iniciar</h2><p>${err.message}</p></div>`;
             }
         });
 
-        // LEER POZO Y LEADERBOARD DESDE D1
         async function loadD1Data() {
             try {
                 const res = await fetch(API_D1_URL, { method: "GET", headers: { "Accept": "application/json" } });
@@ -97,7 +197,6 @@
             }
         }
 
-        // GUARDAR PUNTAJE AL MORIR
         async function saveScoreToD1(finalScore) {
             const statusEl = document.getElementById("scoreSyncStatus");
             
@@ -339,3 +438,5 @@
             saveScoreToD1(score);
         }
     </script>
+</body>
+</html>
