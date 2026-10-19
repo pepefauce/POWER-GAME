@@ -1,4 +1,4 @@
-    <!-- LÓGICA Y CONEXIÓN A D1 -->
+    <!-- LÓGICA Y CONEXIÓN A D1 (A PRUEBA DE PANTALLA NEGRA) -->
     <script>
         const DAPP_PRINCIPAL_URL = "https://multiswap-power-flow.pages.dev";
         const API_D1_URL = "https://multiswap-power-flow.pages.dev/api/game";
@@ -17,46 +17,51 @@
         function exitToMainDapp() { window.location.href = DAPP_PRINCIPAL_URL; }
 
         function resizeCanvas() {
-            canvas.width = canvas.parentElement.clientWidth;
-            canvas.height = canvas.parentElement.clientHeight;
+            if (canvas && canvas.parentElement) {
+                canvas.width = canvas.parentElement.clientWidth;
+                canvas.height = canvas.parentElement.clientHeight;
+            }
         }
 
         window.addEventListener("resize", resizeCanvas);
 
         document.addEventListener("DOMContentLoaded", () => {
-            resizeCanvas();
+            try {
+                resizeCanvas();
 
-            const urlParams = new URLSearchParams(window.location.search);
-            const walletParam = urlParams.get("wallet");
-            const expiryParam = urlParams.get("expiry");
+                const urlParams = new URLSearchParams(window.location.search);
+                const walletParam = urlParams.get("wallet");
+                const expiryParam = urlParams.get("expiry");
 
-            if (walletParam && expiryParam) {
-                localStorage.setItem("game_wallet", walletParam.toLowerCase());
-                localStorage.setItem("game_expiry", expiryParam);
-                try { window.history.replaceState({}, document.title, window.location.pathname); } catch(e){}
-            }
-
-            const storedExpiry = localStorage.getItem("game_expiry");
-            const timerEl = document.getElementById("timerDisplay");
-
-            if (storedExpiry) {
-                const diff = parseInt(storedExpiry) - Date.now();
-                if (diff > 0) {
-                    const hrs = Math.floor(diff / (1000 * 60 * 60));
-                    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                    if (timerEl) timerEl.innerText = `Pase Activo: ${hrs}h ${mins}m`;
-                } else {
-                    alert("🔒 Tu pase ha expirado. Renueva tu entrada en la dApp.");
-                    localStorage.removeItem("game_expiry");
-                    window.location.href = DAPP_PRINCIPAL_URL;
-                    return;
+                if (walletParam) {
+                    localStorage.setItem("game_wallet", walletParam.toLowerCase().trim());
                 }
-            } else {
-                if (timerEl) timerEl.innerText = `Prueba Libre`;
-            }
+                if (expiryParam) {
+                    localStorage.setItem("game_expiry", expiryParam);
+                    try { window.history.replaceState({}, document.title, window.location.pathname); } catch(e){}
+                }
 
-            setupControls();
-            loadD1Data();
+                const timerEl = document.getElementById("timerDisplay");
+                const storedExpiry = localStorage.getItem("game_expiry");
+
+                if (storedExpiry) {
+                    const diff = parseInt(storedExpiry) - Date.now();
+                    if (diff > 0) {
+                        const hrs = Math.floor(diff / (1000 * 60 * 60));
+                        const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                        if (timerEl) timerEl.innerText = `Pase Activo: ${hrs}h ${mins}m`;
+                    } else {
+                        if (timerEl) timerEl.innerText = `Pase Expirado`;
+                    }
+                } else {
+                    if (timerEl) timerEl.innerText = `Prueba Libre`;
+                }
+
+                setupControls();
+                loadD1Data();
+            } catch (err) {
+                console.error("Error crítico al iniciar el juego:", err);
+            }
         });
 
         // LEER POZO Y LEADERBOARD DESDE D1
@@ -65,14 +70,15 @@
                 const res = await fetch(API_D1_URL, { method: "GET", headers: { "Accept": "application/json" } });
                 const data = await res.json();
 
-                if (data.prizePool !== undefined) {
-                    document.getElementById("prizePoolDisplay").innerText = `${Number(data.prizePool).toLocaleString()} FLOW`;
-                } else {
-                    document.getElementById("prizePoolDisplay").innerText = "1,000 FLOW";
+                const poolEl = document.getElementById("prizePoolDisplay");
+                if (poolEl && data.prizePool !== undefined) {
+                    poolEl.innerText = `${Number(data.prizePool).toLocaleString()} FLOW`;
+                } else if (poolEl) {
+                    poolEl.innerText = "1,000 FLOW";
                 }
 
                 const listEl = document.getElementById("leaderboardList");
-                if (data.leaderboard && data.leaderboard.length > 0) {
+                if (listEl && data.leaderboard && data.leaderboard.length > 0) {
                     listEl.innerHTML = "";
                     data.leaderboard.forEach((item, index) => {
                         const shortWallet = `${item.wallet.substring(0, 6)}...${item.wallet.substring(item.wallet.length - 4)}`;
@@ -83,21 +89,18 @@
                             </div>
                         `;
                     });
-                } else {
+                } else if (listEl) {
                     listEl.innerHTML = "<p class='text-slate-500 text-center'>Sé el primero en calificar esta semana.</p>";
                 }
             } catch (err) {
                 console.error("Error conectando con D1:", err);
-                document.getElementById("prizePoolDisplay").innerText = "1,000 FLOW";
-                document.getElementById("leaderboardList").innerHTML = "<p class='text-rose-400 text-center'>Error al sincronizar D1</p>";
             }
         }
 
-        // GUARDAR PUNTAJE AL MORIR (CORREGIDO Y ROBUSTO)
+        // GUARDAR PUNTAJE AL MORIR
         async function saveScoreToD1(finalScore) {
             const statusEl = document.getElementById("scoreSyncStatus");
             
-            // Busca la wallet en la URL o en CUALQUIER clave de localStorage que uses
             const urlParams = new URLSearchParams(window.location.search);
             let wallet = urlParams.get("wallet") || 
                          localStorage.getItem("flow_active_wallet") || 
@@ -109,36 +112,33 @@
             }
 
             if (!wallet) {
-                statusEl.innerText = "⚠️ No se detectó Wallet conectada";
-                console.error("Error: No se encontró la wallet del jugador.");
+                if (statusEl) statusEl.innerText = "⚠️ No se detectó Wallet conectada";
                 return;
             }
 
             try {
-                statusEl.innerText = "Guardando récord en D1...";
+                if (statusEl) statusEl.innerText = "Guardando récord en D1...";
                 const response = await fetch(API_D1_URL, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ 
-                        wallet: wallet, 
-                        score: finalScore 
-                    })
+                    body: JSON.stringify({ wallet: wallet, score: finalScore })
                 });
                 
                 const result = await response.json();
                 if (response.ok && result.success) {
-                    statusEl.innerText = "✅ ¡Récord sincronizado con D1!";
+                    if (statusEl) statusEl.innerText = "✅ ¡Récord sincronizado con D1!";
                 } else {
-                    statusEl.innerText = "⚠️ " + (result.error || "Error al actualizar récord.");
+                    if (statusEl) statusEl.innerText = "⚠️ " + (result.error || "Error al actualizar récord.");
                 }
                 loadD1Data();
             } catch (e) {
                 console.error("Error de red al guardar puntaje:", e);
-                statusEl.innerText = "⚠️ Error de red al sincronizar con D1.";
+                if (statusEl) statusEl.innerText = "⚠️ Error de red al sincronizar con D1.";
             }
         }
 
         function setupControls() {
+            if (!canvas) return;
             canvas.addEventListener("touchstart", (e) => {
                 const t = e.touches[0];
                 const rect = canvas.getBoundingClientRect();
@@ -158,9 +158,13 @@
         }
 
         function startGame() {
-            document.getElementById("startOverlay").classList.add("hidden");
-            document.getElementById("gameOverOverlay").classList.add("hidden");
-            document.getElementById("upgradeOverlay").classList.add("hidden");
+            const startOv = document.getElementById("startOverlay");
+            const gameOv = document.getElementById("gameOverOverlay");
+            const upOv = document.getElementById("upgradeOverlay");
+
+            if (startOv) startOv.classList.add("hidden");
+            if (gameOv) gameOv.classList.add("hidden");
+            if (upOv) upOv.classList.add("hidden");
 
             score = 0; gems = 0; level = 1; xp = 0; xpToNext = 5; secondsSurvived = 0;
             playerStats = { speed: 4, fireRate: 350, lastShootTime: 0, bulletDamage: 1, bulletSpeed: 7, health: 100, magnetRadius: 90 };
@@ -178,7 +182,8 @@
                     score += 10;
                     const mins = String(Math.floor(secondsSurvived / 60)).padStart(2, '0');
                     const secs = String(secondsSurvived % 60).padStart(2, '0');
-                    document.getElementById("survivalTimer").innerText = `${mins}:${secs}`;
+                    const timer = document.getElementById("survivalTimer");
+                    if (timer) timer.innerText = `${mins}:${secs}`;
                     updateUI();
                 }
             }, 1000);
@@ -293,14 +298,18 @@
         }
 
         function updateUI() {
-            document.getElementById("scoreCount").innerText = score;
-            document.getElementById("gemCount").innerText = gems;
+            const sc = document.getElementById("scoreCount");
+            const gc = document.getElementById("gemCount");
+            if (sc) sc.innerText = score;
+            if (gc) gc.innerText = gems;
         }
 
         function triggerUpgradeMenu() {
             isRunning = false;
             const overlay = document.getElementById("upgradeOverlay");
             const container = document.getElementById("upgradeOptions");
+            if (!overlay || !container) return;
+            
             overlay.classList.remove("hidden");
             container.innerHTML = "";
 
@@ -312,7 +321,7 @@
 
             options.forEach(opt => {
                 const btn = document.createElement("button");
-                btn.className = "w-full bg-slate-900 border border-slate-700 p-3 rounded-xl text-left flex flex-col";
+                btn.className = "w-full bg-slate-900 border border-slate-700 p-3 rounded-xl text-left flex flex-col cursor-pointer";
                 btn.innerHTML = `<span class="font-bold text-emerald-400 text-xs">${opt.title}</span><span class="text-[10px] text-slate-300 mt-0.5">${opt.desc}</span>`;
                 btn.onclick = () => { opt.apply(); overlay.classList.add("hidden"); isRunning = true; requestAnimationFrame(gameLoop); };
                 container.appendChild(btn);
@@ -322,10 +331,11 @@
         function endGame() {
             isRunning = false;
             clearInterval(survivalInterval);
-            document.getElementById("finalScore").innerText = score;
-            document.getElementById("gameOverOverlay").classList.remove("hidden");
+            const finalSc = document.getElementById("finalScore");
+            const gameOv = document.getElementById("gameOverOverlay");
+            if (finalSc) finalSc.innerText = score;
+            if (gameOv) gameOv.classList.remove("hidden");
 
-            // Sincronizar el puntaje con Cloudflare D1
             saveScoreToD1(score);
         }
     </script>
